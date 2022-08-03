@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32421.90
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NSD.UI", "NSD.UI\NSD.UI.csproj", "{A5492109-BC61-49D4-A830-300B844F8A67}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NSD", "NSD\NSD.csproj", "{EBA91A52-FAE6-4E77-8714-79CBE5A2EEB8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A5492109-BC61-49D4-A830-300B844F8A67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5492109-BC61-49D4-A830-300B844F8A67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5492109-BC61-49D4-A830-300B844F8A67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5492109-BC61-49D4-A830-300B844F8A67}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EBA91A52-FAE6-4E77-8714-79CBE5A2EEB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EBA91A52-FAE6-4E77-8714-79CBE5A2EEB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EBA91A52-FAE6-4E77-8714-79CBE5A2EEB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EBA91A52-FAE6-4E77-8714-79CBE5A2EEB8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D5FEEFF6-2F41-4325-9E64-D2FBC754142E}
+	EndGlobalSection
+EndGlobal
