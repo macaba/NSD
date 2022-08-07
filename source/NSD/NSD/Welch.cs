@@ -4,75 +4,77 @@ namespace NSD
 {
     public class Welch
     {
-        public static Memory<double> NSD_SingleSeries(Memory<double> input, double sampleRate, double inputScale = 1, int outputWidth = 2048)
+        public static Spectrum NSD(Memory<double> input, double sampleRate, int startEndTrim, int outputWidth = 2048)
         {
-            var window = GetHFT90DWindow(outputWidth);
-            //FFT.InplaceSubtractLineFitWithScaling(input, inputScale);
-
-            // Overlap
-            // "Optimum" 76%
-            // Amplitude flatness nearly 1.0 = 80%
-            // Power flatness nearly 1.0 = 85%
-            // Aim for 80% overlap
-
+            var window = Windows.HFT90D(outputWidth, out double optimumOverlap);
             int startIndex = 0;
             int endIndex = outputWidth;
-            int overlap = (int)(outputWidth * (1.0-0.76));
+            int overlap = (int)(outputWidth * (1.0 - optimumOverlap));
             List<Memory<double>> spectrums = new();
             while (endIndex < input.Length)
             {
                 var newSlice = input.Slice(startIndex, outputWidth);
-                var data = FFT.SubtractLineFitWithScaling(newSlice, inputScale);
+                var data = FFT.SubtractLineFitWithScaling(newSlice);
                 Memory<double> psd = new double[outputWidth];
                 FFT.PSD(data, psd, window, sampleRate);
-                spectrums.Add(psd);             
+                spectrums.Add(psd);
                 startIndex += overlap;
                 endIndex += overlap;
             }
 
             Memory<double> vsd = new double[outputWidth];
             FFT.AverageVSDFromPSDCollection(spectrums, vsd);
-            return vsd;
+            var nsd = Spectrum.FromValues(vsd, sampleRate);
+            nsd.TrimStartEnd(startEndTrim);
+            return nsd;
         }
 
-        public static Memory<double> GetHFT95Window(int width)
+        public static Task<Spectrum> NSD_Async(Memory<double> input, double sampleRate, int startEndTrim, int outputWidth = 2048)
         {
-            // HFT95 - https://holometer.fnal.gov/GH_FFT.pdf
-            // wj = 1 − 1.9383379 cos(z) + 1.3045202 cos(2z) − 0.4028270 cos(3z) + 0.0350665 cos(4z).
-            Memory<double> window = new double[width];
-            for (int i = 0; i < width; i++)
-            {
-                double z = (2.0 * Math.PI * i) / width;
-                double wj = 1 - (1.9383379 * Math.Cos(z)) + (1.3045202 * Math.Cos(2 * z)) - (0.4028270 * Math.Cos(3 * z)) + (0.0350665 * Math.Cos(4 * z));
-                window.Span[i] = wj;
-            }
-            return window;
+            return Task.Factory.StartNew(() => NSD(input, sampleRate, startEndTrim, outputWidth));
         }
 
-        public static Memory<double> GetHFT90DWindow(int width)
+        public static Spectrum StackedNSD(Memory<double> input, double sampleRate, int startEndTrim, int outputWidth = 2048)
         {
-            // HFT90D - https://holometer.fnal.gov/GH_FFT.pdf
-            // wj = 1 − 1.942604 cos(z) + 1.340318 cos(2z) − 0.440811 cos(3z) + 0.043097 cos(4z).
-            Memory<double> window = new double[width];
-            for (int i = 0; i < width; i++)
+            List<int> widths = new();
+            List<int> startEndTrims = new();
+            widths.Add(outputWidth);
+            startEndTrims.Add(startEndTrim);
+            int temp = outputWidth;
+            while (temp > 1024)
             {
-                double z = (2.0 * Math.PI * i) / width;
-                double wj = 1 - (1.942604 * Math.Cos(z)) + (1.340318 * Math.Cos(2 * z)) - (0.440811 * Math.Cos(3 * z)) + (0.043097 * Math.Cos(4 * z));
-                window.Span[i] = wj;
+                temp /= 2;
+                widths.Add(temp);
+                startEndTrims.Add(startEndTrim*2);    //Trim a bit more for the shorter widths
             }
-            return window;
+            widths.Reverse();      // Smallest to largest
+            startEndTrims.Reverse();
+
+            double lowestFrequency = double.MaxValue;
+            List<double> outputFrequencies = new();
+            List<double> outputValues = new();
+            for(int n = 0; n < widths.Count; n++)
+            {
+                var nsd = NSD(input, sampleRate, startEndTrims[n], widths[n]);
+
+                for (int i = nsd.Frequencies.Length - 1; i >= 0; i--)
+                {
+                    if (nsd.Frequencies.Span[i] < lowestFrequency)
+                    {
+                        lowestFrequency = nsd.Frequencies.Span[i];
+                        outputFrequencies.Add(nsd.Frequencies.Span[i]);
+                        outputValues.Add(nsd.Values.Span[i]);
+                    }
+                }
+            }
+            outputFrequencies.Reverse();
+            outputValues.Reverse();
+            return new Spectrum() { Frequencies = outputFrequencies.ToArray(), Values = outputValues.ToArray() };
         }
 
-        public static Memory<double> GetFTNIWindow(int width)
+        public static Task<Spectrum> StackedNSD_Async(Memory<double> input, double sampleRate, int startEndTrim, int outputWidth = 2048)
         {
-            Memory<double> window = new double[width];
-            for (int i = 0; i < width; i++)
-            {
-                double z = (2.0 * Math.PI * i) / width;
-                double wj = 0.2810639 - (0.5208972 * Math.Cos(z)) + (0.1980399 * Math.Cos(2 * z));
-                window.Span[i] = wj;
-            }
-            return window;
+            return Task.Factory.StartNew(() => StackedNSD(input, sampleRate, startEndTrim, outputWidth));
         }
     }
 }

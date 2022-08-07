@@ -7,7 +7,7 @@ namespace NSD
 {
     internal class FFT
     {
-        public static void InplaceSubtractLineFitWithScaling(Memory<double> data, double inputScale = 1)
+        public static void InplaceSubtractLineFitWithScaling(Memory<double> data)
         {
             double[] x = new double[data.Length];
             for (int i = 0; i < data.Length; i++)
@@ -24,12 +24,12 @@ namespace NSD
             // Subtract average
             for (int i = 0; i < data.Length; i++)
             {
-                data.Span[i] = (data.Span[i] - (A + B*i)) * inputScale;
+                data.Span[i] = (data.Span[i] - (A + B*i));
                 //data.Span[i] = (data.Span[i] - average) * inputScale;
             }
         }
 
-        public static Memory<double> SubtractLineFitWithScaling(Memory<double> data, double inputScale = 1)
+        public static Memory<double> SubtractLineFitWithScaling(Memory<double> data)
         {
             double[] x = new double[data.Length];
             Memory<double> result = new double[data.Length];
@@ -38,7 +38,7 @@ namespace NSD
             var (A, B) = Fit.Line(x, data.Span.ToArray());
             for (int i = 0; i < data.Length; i++)
             {
-                result.Span[i] = (data.Span[i] - (A + B * i)) * inputScale;
+                result.Span[i] = (data.Span[i] - (A + B * i));
             }
             return result;
         }

@@ -24,14 +24,12 @@ namespace NSD
         /// </summary>
         /// <param name="samples"></param>
         /// <returns></returns>
-        public double[] Process(double[] samples)
+        public double[] Process(Span<double> samples)
         {
             int length = samples.Length;
             double[] output = new double[length];
             int frameSize = (sidePoints << 1) + 1;
-            double[] frame = new double[frameSize];
-
-            Array.Copy(samples, frame, frameSize);
+            double[] frame = samples.Slice(0, frameSize).ToArray();
 
             for (int i = 0; i < sidePoints; ++i)
             {
@@ -40,11 +38,11 @@ namespace NSD
 
             for (int n = sidePoints; n < length - sidePoints; ++n)
             {
-                Array.ConstrainedCopy(samples, n - sidePoints, frame, 0, frameSize);
+                Array.ConstrainedCopy(samples.ToArray(), n - sidePoints, frame, 0, frameSize);
                 output[n] = coefficients.Column(sidePoints).DotProduct(Vector<double>.Build.DenseOfArray(frame));
             }
 
-            Array.ConstrainedCopy(samples, length - frameSize, frame, 0, frameSize);
+            Array.ConstrainedCopy(samples.ToArray(), length - frameSize, frame, 0, frameSize);
 
             for (int i = 0; i < sidePoints; ++i)
             {

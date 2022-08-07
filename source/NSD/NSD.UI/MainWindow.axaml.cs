@@ -1,8 +1,10 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using CsvHelper;
+using CsvHelper.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -12,8 +14,7 @@ namespace NSD.UI
     public partial class MainWindow : Window
     {
         private readonly MainWindowViewModel viewModel = new();
-        private double[] processingX;
-        private double[] processingY;
+        private Spectrum spectrum;
 
         public MainWindow()
         {
@@ -22,75 +23,130 @@ namespace NSD.UI
             InitNsdChart();
         }
 
-        public void btnRun_Click(object sender, RoutedEventArgs e)
+        public async void BtnSearch_Click(object sender, RoutedEventArgs e)
         {
-            viewModel.Status = "Status: Running NSD...";
-            var path = tbPath.Text;
-            if (!File.Exists(path))
+            if (!Directory.Exists(viewModel.WorkingFolder))
             {
-                var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager
-                    .GetMessageBoxStandardWindow("File not found", "Input CSV file not found");
-                messageBoxStandardWindow.Show();
+                var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow("Folder not found", "Search folder not found");
+                await messageBoxStandardWindow.Show();
                 return;
             }
-                
+
+            var files = Directory.EnumerateFiles(viewModel.WorkingFolder, "*.csv");
+            viewModel.InputFilePaths.Clear();
+            viewModel.InputFileNames.Clear();
+            foreach (var file in files)
+            {
+                viewModel.InputFilePaths.Add(file);
+                viewModel.InputFileNames.Add(Path.GetFileName(file));
+            }
+            viewModel.SelectedInputFileIndex = 0;
+        }
+
+        public async void btnRun_Click(object sender, RoutedEventArgs e)
+        {
+            var path = viewModel.GetSelectedInputFilePath();
+            if (!File.Exists(path))
+            {
+                var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow("File not found", "Input CSV file not found");
+                await messageBoxStandardWindow.Show();
+                return;
+            }
+
 
             if (!double.TryParse(tbSampleRate.Text, out double sampleRate))
             {
-                var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager
-                    .GetMessageBoxStandardWindow("Invalid sample rate", "Invalid sample rate value");
-                messageBoxStandardWindow.Show();
+                var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow("Invalid sample rate", "Invalid sample rate value");
+                await messageBoxStandardWindow.Show();
                 return;
             }
-            var fftWidth = int.Parse((string)((ComboBoxItem)cbFftWidth.SelectedItem).Content);
+            var fftWidth = int.Parse((string)(viewModel.SelectedFftWidthItem).Content);
+            var inputScaling = ((string)(viewModel.SelectedInputUnitItem).Content) switch
+            {
+                "V" => 1.0,
+                "mV" => 1e-3,
+                "uV" => 1e-6,
+                "nV" => 1e-9,
+                _ => 1.0
+            };
+
+            viewModel.Status = "Status: Loading CSV...";
+            viewModel.Enabled = false;
 
             using var reader = new StreamReader(path);
             using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
-            var records = csv.GetRecords<double>().ToList();
+            var records = await csv.GetRecordsAsync<double>().ToListAsync();
             if (records.Count == 0)
                 throw new NsdProcessingException("No CSV records found");
 
-            //var sine = Signals.OneVoltRmsTestSignal();
+            viewModel.Status = "Status: Calculating NSD...";
 
-            //var nsd = MultiTaper.NSD_SingleSeries(input: records.ToArray(), sampleRate: 50, inputScale: 1E3, dF: 0.2, nw: 8);
-            var nsd = Welch.NSD_SingleSeries(input: records.ToArray(), sampleRate, inputScale: 1e-3, outputWidth: fftWidth);
-            //var nsd = Welch.NSD_SingleSeries(input: sine, sampleRate, inputScale: 1, outputWidth: fftWidth);
-
-            int ignoreBins = 3;         //FTNI = 3, HFT90 = 3
-            int length = (nsd.Length / 2) - ignoreBins * 2;     // Trim ignoreBins from either end of the real spectrum
-            processingX = new double[length];
-
-            double dT = (sampleRate / nsd.Length);
-            for (int i = ignoreBins; i < length + ignoreBins; i++)
+            for(int i = 0; i < records.Count; i++)
             {
-                processingX[i - ignoreBins] = i * dT;
+                records[i] *= inputScaling;
+            }
+            // Trim ignoreBins from either end of the real spectrum
+            int ignoreBins = 3;         //FTNI = 3, HFT90 = 3
+            if (viewModel.FftStacking)
+            {
+                var nsd = await Welch.StackedNSD_Async(input: records.ToArray(), sampleRate, ignoreBins, outputWidth: fftWidth);
+                spectrum = nsd;
+            }
+            else
+            {
+                //var sine = Signals.OneVoltRmsTestSignal();
+                //await Welch.StackedNSD_Async(input: records.ToArray(), sampleRate, inputScale: 1e-3, outputWidth: fftWidth);
+                //var nsd = Welch.NSD_SingleSeries(input: sine, sampleRate, inputScale: 1, outputWidth: fftWidth);
+                var nsd = await Welch.NSD_Async(input: records.ToArray(), sampleRate, ignoreBins, outputWidth: fftWidth);
+                spectrum = nsd;
             }
 
-            processingY = nsd.Slice(ignoreBins, length).ToArray();
-
-            double[] yArray;
+            Memory<double> yArray;
             if (cbFilter.IsChecked == true)
-                yArray = new SavitzkyGolayFilter(5, 1).Process(processingY);
+                yArray = new SavitzkyGolayFilter(5, 1).Process(spectrum.Values.Span);
             else
-                yArray = processingY;
+                yArray = spectrum.Values;
 
-            UpdateNSDChart(processingX, yArray, 1e9);
-            viewModel.Status = "Status: NSD complete";
+            UpdateNSDChart(spectrum.Frequencies, yArray);
+            viewModel.Status = "Status: Processing complete";
+            viewModel.Enabled = true;
+        }
+
+        public async void BtnGenerate_Click(object sender, RoutedEventArgs e)
+        {
+            var outputFilePath = Path.Combine(viewModel.WorkingFolder, viewModel.OutputFileName);
+
+            CsvConfiguration config = new(CultureInfo.InvariantCulture);
+            config.Delimiter = ",";
+            using var writer = new StreamWriter(outputFilePath);
+            using var csvWriter = new CsvWriter(writer, config);
+            dynamic header = new ExpandoObject();
+            header.Frequency = "";
+            header.Noise = "";
+            csvWriter.WriteDynamicHeader(header);
+            csvWriter.NextRecord();
+
+            for (int i = 0; i < spectrum.Frequencies.Length; i++)
+            {
+                csvWriter.WriteField(spectrum.Frequencies.Span[i]);
+                csvWriter.WriteField(spectrum.Values.Span[i]);
+                csvWriter.NextRecord();
+            }
         }
 
         private void btnSetAxis_Click(object sender, RoutedEventArgs e)
         {
-            WpfPlot1.Plot.SetAxisLimits(Math.Log10((double)dblXMin.Value), Math.Log10((double)dblXMax.Value), Math.Log10((double)dblYMin.Value), Math.Log10((double)dblYMax.Value));
+            WpfPlot1.Plot.SetAxisLimits(Math.Log10(viewModel.XMin), Math.Log10(viewModel.XMax), Math.Log10(viewModel.YMin), Math.Log10(viewModel.YMax));
             WpfPlot1.Render();
         }
 
-        public void UpdateNSDChart(Memory<double> x, Memory<double> y, double yScaling = 1)
+        public void UpdateNSDChart(Memory<double> x, Memory<double> y)
         {
             WpfPlot1.Configuration.DpiStretch = false;
             WpfPlot1.Configuration.Quality = ScottPlot.Control.QualityMode.High;
             WpfPlot1.Plot.Clear();
             double[] logXs = x.ToArray().Select(pt => Math.Log10(pt)).ToArray();
-            double[] logYs = y.ToArray().Select(pt => Math.Log10(pt * yScaling)).ToArray();
+            double[] logYs = y.ToArray().Select(pt => Math.Log10(pt * 1E9)).ToArray();
             var scatter = WpfPlot1.Plot.AddScatterLines(logXs, logYs);
             static string logTickLabels(double y) => Math.Pow(10, y).ToString();    // "N0"
             WpfPlot1.Plot.XAxis.TickLabelFormat(logTickLabels);
@@ -108,7 +164,7 @@ namespace NSD.UI
             WpfPlot1.Plot.XAxis.MinorLogScale(true);
             WpfPlot1.Plot.XAxis.MajorGrid(true, System.Drawing.Color.FromArgb(80, System.Drawing.Color.Black));
             WpfPlot1.Plot.XAxis.MinorGrid(true, System.Drawing.Color.FromArgb(20, System.Drawing.Color.Black));
-            WpfPlot1.Plot.SetAxisLimits(Math.Log10((double)dblXMin.Value), Math.Log10((double)dblXMax.Value), Math.Log10((double)dblYMin.Value), Math.Log10((double)dblYMax.Value));
+            WpfPlot1.Plot.SetAxisLimits(Math.Log10(viewModel.XMin), Math.Log10(viewModel.XMax), Math.Log10(viewModel.YMin), Math.Log10(viewModel.YMax));
             WpfPlot1.Render();
         }
 
@@ -133,7 +189,7 @@ namespace NSD.UI
             WpfPlot1.Plot.XAxis.MinorLogScale(true);
             WpfPlot1.Plot.XAxis.MajorGrid(true, System.Drawing.Color.FromArgb(80, System.Drawing.Color.Black));
             WpfPlot1.Plot.XAxis.MinorGrid(true, System.Drawing.Color.FromArgb(20, System.Drawing.Color.Black));
-            WpfPlot1.Plot.SetAxisLimits(Math.Log10((double)dblXMin.Value), Math.Log10((double)dblXMax.Value), Math.Log10((double)dblYMin.Value), Math.Log10((double)dblYMax.Value));
+            WpfPlot1.Plot.SetAxisLimits(Math.Log10(viewModel.XMin), Math.Log10(viewModel.XMax), Math.Log10(viewModel.YMin), Math.Log10(viewModel.YMax));
             WpfPlot1.Render();
         }
     }
