@@ -41,7 +41,7 @@ namespace NSD
             widths.Add(outputWidth);
             startEndTrims.Add(startEndTrim);
             int temp = outputWidth;
-            while (temp > 1024)
+            while (temp > 256)
             {
                 temp /= 2;
                 widths.Add(temp);
