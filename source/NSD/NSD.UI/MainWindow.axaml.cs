@@ -8,31 +8,35 @@ using System.Dynamic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace NSD.UI
 {
     public partial class MainWindow : Window
     {
-        private readonly MainWindowViewModel viewModel = new();
+        private readonly MainWindowViewModel viewModel;
         private Spectrum spectrum;
+        private Settings settings;
 
         public MainWindow()
         {
             InitializeComponent();
+            settings = Settings.Load();
+            viewModel = new(settings);
             DataContext = viewModel;
             InitNsdChart();
         }
 
         public async void BtnSearch_Click(object sender, RoutedEventArgs e)
         {
-            if (!Directory.Exists(viewModel.WorkingFolder))
+            if (!Directory.Exists(viewModel.ProcessWorkingFolder))
             {
                 var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow("Folder not found", "Search folder not found");
                 await messageBoxStandardWindow.Show();
                 return;
             }
 
-            var files = Directory.EnumerateFiles(viewModel.WorkingFolder, "*.csv");
+            var files = Directory.EnumerateFiles(viewModel.ProcessWorkingFolder, "*.csv");
             viewModel.InputFilePaths.Clear();
             viewModel.InputFileNames.Clear();
             foreach (var file in files)
@@ -43,21 +47,31 @@ namespace NSD.UI
             viewModel.SelectedInputFileIndex = 0;
         }
 
+        public async void BtnCollateSearch_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        public async void BtnCollateAdd_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+        
         public async void btnRun_Click(object sender, RoutedEventArgs e)
         {
             var path = viewModel.GetSelectedInputFilePath();
             if (!File.Exists(path))
             {
-                var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow("File not found", "Input CSV file not found");
-                await messageBoxStandardWindow.Show();
+                await ShowError("File not found", "Input CSV file not found");
+                viewModel.Enabled = true;
                 return;
             }
 
 
             if (!double.TryParse(tbSampleRate.Text, out double sampleRate))
             {
-                var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow("Invalid sample rate", "Invalid sample rate value");
-                await messageBoxStandardWindow.Show();
+                await ShowError("Invalid sample rate", "Invalid sample rate value");
+                viewModel.Enabled = true;
                 return;
             }
             var fftWidth = int.Parse((string)(viewModel.SelectedFftWidthItem).Content);
@@ -77,11 +91,21 @@ namespace NSD.UI
             using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
             var records = await csv.GetRecordsAsync<double>().ToListAsync();
             if (records.Count == 0)
-                throw new NsdProcessingException("No CSV records found");
+            {
+                await ShowError("No CSV records", "No CSV records found");
+                viewModel.Enabled = true;
+                return;
+            }
+            if (fftWidth > records.Count)
+            {
+                await ShowError("FFT too long", "FFT width is longer than input data");
+                viewModel.Enabled = true;
+                return;
+            }
 
             viewModel.Status = "Status: Calculating NSD...";
 
-            for(int i = 0; i < records.Count; i++)
+            for (int i = 0; i < records.Count; i++)
             {
                 records[i] *= inputScaling;
             }
@@ -114,7 +138,7 @@ namespace NSD.UI
 
         public async void BtnGenerate_Click(object sender, RoutedEventArgs e)
         {
-            var outputFilePath = Path.Combine(viewModel.WorkingFolder, viewModel.OutputFileName);
+            var outputFilePath = Path.Combine(viewModel.ProcessWorkingFolder, viewModel.OutputFileName);
 
             CsvConfiguration config = new(CultureInfo.InvariantCulture);
             config.Delimiter = ",";
@@ -191,6 +215,12 @@ namespace NSD.UI
             WpfPlot1.Plot.XAxis.MinorGrid(true, System.Drawing.Color.FromArgb(20, System.Drawing.Color.Black));
             WpfPlot1.Plot.SetAxisLimits(Math.Log10(viewModel.XMin), Math.Log10(viewModel.XMax), Math.Log10(viewModel.YMin), Math.Log10(viewModel.YMax));
             WpfPlot1.Render();
+        }
+
+        private async Task ShowError(string title, string message)
+        {
+            var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(title, message);
+            await messageBoxStandardWindow.Show();
         }
     }
 }

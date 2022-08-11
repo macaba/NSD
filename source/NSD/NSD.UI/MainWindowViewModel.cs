@@ -12,7 +12,8 @@ namespace NSD.UI
     {
         [ObservableProperty] string status = "Status: Idle";
         [ObservableProperty] bool enabled = true;
-        [ObservableProperty] string workingFolder = @"C:\GitHub\Nuts\data\nsd";
+        [ObservableProperty] string? processWorkingFolder;
+        [ObservableProperty] string? collateWorkingFolder;
         [ObservableProperty] ObservableCollection<string> inputFilePaths = new();
         [ObservableProperty] ObservableCollection<string> inputFileNames = new();
         [ObservableProperty] int selectedInputFileIndex = -1;
@@ -20,11 +21,32 @@ namespace NSD.UI
         public ComboBoxItem? SelectedFftWidthItem { get; set; }
         public ComboBoxItem? SelectedInputUnitItem { get; set; }
         public bool FftStacking { get; set; } = false;
-        public double XMin { get; set; } = 0.001;
+        public double XMin { get; set; } = 0.0001;
         public double XMax { get; set; } = 10;
         public double YMin { get; set; } = 1;
-        public double YMax { get; set; } = 100;
+        public double YMax { get; set; } = 1000;
         public string WindowTitle { get { Version version = Assembly.GetExecutingAssembly().GetName().Version; return "NSD v" + version.Major + "." + version.Minor; } }
+
+        private Settings settings;
+
+        public MainWindowViewModel(Settings settings)
+        {
+            this.settings = settings;
+            processWorkingFolder = settings.ProcessWorkingFolder;
+            collateWorkingFolder = settings.CollateWorkingFolder;
+        }
+
+        partial void OnProcessWorkingFolderChanged(string? value)
+        {
+            settings.ProcessWorkingFolder = value;
+            settings.Save();
+        }
+
+        partial void OnCollateWorkingFolderChanged(string? value)
+        {
+            settings.CollateWorkingFolder = value;
+            settings.Save();
+        }
 
         public string GetSelectedInputFilePath()
         {
