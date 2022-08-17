@@ -7,14 +7,16 @@ namespace NSD.UI
     public class Settings
     {
         public string? ProcessWorkingFolder { get; set; }
-        public string? CollateWorkingFolder { get; set; }
+        //public string? CollateWorkingFolder { get; set; }
+        public string? SampleRate { get; set; }
 
         public static Settings Default()
         {
             return new Settings()
             {
                 ProcessWorkingFolder = Directory.GetCurrentDirectory(),
-                CollateWorkingFolder = Directory.GetCurrentDirectory()
+                //CollateWorkingFolder = Directory.GetCurrentDirectory(),
+                SampleRate = "50"
             };
         }
 

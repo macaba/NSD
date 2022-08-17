@@ -41,11 +41,14 @@ namespace NSD
             widths.Add(outputWidth);
             startEndTrims.Add(startEndTrim);
             int temp = outputWidth;
-            while (temp > 256)
+            while (temp > 64)
             {
                 temp /= 2;
                 widths.Add(temp);
-                startEndTrims.Add(startEndTrim*2);    //Trim a bit more for the shorter widths
+                if (temp == 64)
+                    startEndTrims.Add(startEndTrim);
+                else
+                    startEndTrims.Add(startEndTrim * 2);    //Trim a bit more for the shorter widths
             }
             widths.Reverse();      // Smallest to largest
             startEndTrims.Reverse();
@@ -53,7 +56,7 @@ namespace NSD
             double lowestFrequency = double.MaxValue;
             List<double> outputFrequencies = new();
             List<double> outputValues = new();
-            for(int n = 0; n < widths.Count; n++)
+            for (int n = 0; n < widths.Count; n++)
             {
                 var nsd = NSD(input, sampleRate, startEndTrims[n], widths[n]);
 
