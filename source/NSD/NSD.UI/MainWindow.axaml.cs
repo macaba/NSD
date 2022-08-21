@@ -85,8 +85,8 @@ namespace NSD.UI
                 };
 
                 viewModel.Status = "Status: Loading CSV...";
-
-                using var reader = new StreamReader(path);
+                using var stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                using var reader = new StreamReader(stream);
                 using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
                 var records = await csv.GetRecordsAsync<double>().ToListAsync();
                 if (records.Count == 0)

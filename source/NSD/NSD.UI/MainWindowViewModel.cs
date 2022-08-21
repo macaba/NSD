@@ -30,8 +30,8 @@ namespace NSD.UI
         public bool FftStacking { get; set; } = false;
         public double XMin { get; set; } = 0.0001;
         public double XMax { get; set; } = 10;
-        public double YMin { get; set; } = 1;
-        public double YMax { get; set; } = 1000;
+        public double YMin { get; set; } = 0.1;
+        public double YMax { get; set; } = 100;
         public string WindowTitle { get { Version version = Assembly.GetExecutingAssembly().GetName().Version; return "NSD v" + version.Major + "." + version.Minor; } }
 
         private Settings settings;
