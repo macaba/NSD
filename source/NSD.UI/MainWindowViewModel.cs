@@ -13,8 +13,8 @@ namespace NSD.UI
     {
         // Loaded from settings file
         [ObservableProperty] string? processWorkingFolder;
-        [ObservableProperty] string? collateWorkingFolder;
-        [ObservableProperty] string? sampleRate;
+        [ObservableProperty] string? acquisitionTime;
+        [ObservableProperty] string? dataRate;
 
         [ObservableProperty] string status = "Status: Idle";
         [ObservableProperty] bool enabled = true;
@@ -24,11 +24,13 @@ namespace NSD.UI
         [ObservableProperty] string outputFileName = "output.nsd";
         [ObservableProperty] bool sgFilterChecked = false;
         [ObservableProperty] IBrush statusBackground = Brushes.WhiteSmoke;
+        public ComboBoxItem? SelectedAcquisitionTimebaseItem { get; set; }
+        public ComboBoxItem? SelectedDataRateUnitItem { get; set; }
         public ComboBoxItem? SelectedFftWidthItem { get; set; }
         public ComboBoxItem? SelectedInputUnitItem { get; set; }
         public ComboBoxItem? SelectedFileFormatItem { get; set; }
         public bool FftStacking { get; set; } = false;
-        public double XMin { get; set; } = 0.0001;
+        public double XMin { get; set; } = 0.01;
         public double XMax { get; set; } = 10;
         public double YMin { get; set; } = 0.1;
         public double YMax { get; set; } = 100;
@@ -40,8 +42,8 @@ namespace NSD.UI
         {
             this.settings = settings;
             processWorkingFolder = settings.ProcessWorkingFolder;
-            //collateWorkingFolder = settings.CollateWorkingFolder;
-            sampleRate = settings.SampleRate;
+            acquisitionTime = settings.AcquisitionTime;
+            dataRate = settings.DataRate;
         }
 
         partial void OnProcessWorkingFolderChanged(string? value)
@@ -50,15 +52,9 @@ namespace NSD.UI
             settings.Save();
         }
 
-        partial void OnCollateWorkingFolderChanged(string? value)
+        partial void OnAcquisitionTimeChanged(string? value)
         {
-            //settings.CollateWorkingFolder = value;
-            //settings.Save();
-        }
-
-        partial void OnSampleRateChanged(string? value)
-        {
-            settings.SampleRate = value;
+            settings.AcquisitionTime = value;
             settings.Save();
         }
 

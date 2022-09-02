@@ -45,14 +45,31 @@
 						<Button Grid.Row="0" Grid.Column="2" Margin="6,0,0,0" Content="Search" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Click="BtnSearch_Click"></Button>
 
 						<Label Grid.Row="1" Grid.Column="0" VerticalAlignment="Center">Input CSV file</Label>
-						<ComboBox Grid.Row="1" Grid.Column="1"  HorizontalAlignment="Stretch" Items="{Binding InputFileNames}" SelectedIndex="{Binding SelectedInputFileIndex}" IsEnabled="{Binding Enabled}"></ComboBox>
+						<ComboBox Grid.Row="1" Grid.Column="1"  HorizontalAlignment="Stretch" Items="{Binding InputFileNames}" SelectedIndex="{Binding SelectedInputFileIndex}" IsEnabled="{Binding Enabled}"  VerticalContentAlignment="Center"></ComboBox>
 						
-						<Label Grid.Row="3" Grid.Column="0" VerticalAlignment="Center">Sample rate (SPS)</Label>
-						<TextBox Grid.Row="3" Grid.Column="1" Watermark="Sample rate (SPS)..." Text="{Binding SampleRate}" IsEnabled="{Binding Enabled}"/>
+						<Label Grid.Row="3" Grid.Column="0" VerticalAlignment="Center">Acquisition time</Label>
+						<StackPanel Orientation="Horizontal" Grid.Row="3" Grid.Column="1">
+							<TextBox Watermark="Acquisition time..." Text="{Binding AcquisitionTime}" IsEnabled="{Binding Enabled}" MinWidth="100"/>
+							<ComboBox SelectedIndex="0" SelectedItem="{Binding SelectedAcquisitionTimebaseItem, Mode=OneWayToSource}" IsEnabled="{Binding Enabled}" HorizontalAlignment="Stretch" VerticalContentAlignment="Center">
+								<ComboBoxItem>NPLC (50Hz)</ComboBoxItem>
+								<ComboBoxItem>NPLC (60Hz)</ComboBoxItem>
+								<ComboBoxItem>s</ComboBoxItem>
+								<ComboBoxItem>ms</ComboBoxItem>
+								<ComboBoxItem>μs</ComboBoxItem>
+								<ComboBoxItem>ns</ComboBoxItem>
+							</ComboBox>
+							<Label VerticalAlignment="Center">Data rate</Label>
+							<TextBox Watermark="Data rate..." Text="{Binding DataRate}" IsEnabled="{Binding Enabled}" MinWidth="100"></TextBox>
+							<ComboBox SelectedIndex="0" SelectedItem="{Binding SelectedDataRateUnitItem, Mode=OneWayToSource}" IsEnabled="{Binding Enabled}" HorizontalAlignment="Stretch" VerticalContentAlignment="Center">
+								<ComboBoxItem>Samples per second</ComboBoxItem>
+								<ComboBoxItem>Seconds per sample</ComboBoxItem>
+							</ComboBox>
+						</StackPanel>
+
 
 						<Label Grid.Row="4" Grid.Column="0" VerticalAlignment="Center">FFT width</Label>
 						<StackPanel Orientation="Horizontal" Grid.Row="4" Grid.Column="1">
-							<ComboBox SelectedIndex="0" SelectedItem="{Binding SelectedFftWidthItem, Mode=OneWayToSource}" IsEnabled="{Binding Enabled}" HorizontalAlignment="Stretch">
+							<ComboBox SelectedIndex="9" SelectedItem="{Binding SelectedFftWidthItem, Mode=OneWayToSource}" IsEnabled="{Binding Enabled}" HorizontalAlignment="Stretch">
 								<ComboBoxItem>64</ComboBoxItem>
 								<ComboBoxItem>128</ComboBoxItem>
 								<ComboBoxItem>256</ComboBoxItem>
@@ -67,8 +84,6 @@
 								<ComboBoxItem>131072</ComboBoxItem>
 								<ComboBoxItem>262144</ComboBoxItem>
 								<ComboBoxItem>524288</ComboBoxItem>
-								<ComboBoxItem>1048576</ComboBoxItem>
-								<ComboBoxItem>2097152</ComboBoxItem>
 							</ComboBox>
 							<Label VerticalAlignment="Center">Input unit</Label>
 							<ComboBox SelectedIndex="0" SelectedItem="{Binding SelectedInputUnitItem, Mode=OneWayToSource}" IsEnabled="{Binding Enabled}">

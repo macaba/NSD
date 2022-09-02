@@ -1,5 +1,6 @@
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Input;
 using CsvHelper;
 using CsvHelper.Configuration;
 using System;
@@ -68,14 +69,34 @@ namespace NSD.UI
                     viewModel.Status = "Error: Input CSV file not found";
                     return;
                 }
-
-                if (!double.TryParse(viewModel.SampleRate, out double sampleRate))
+                if (!double.TryParse(viewModel.AcquisitionTime, out double acquisitionTime))
                 {
-                    viewModel.Status = "Error: Invalid sample rate value";
+                    viewModel.Status = "Error: Invalid acquisition time value";
                     return;
                 }
+                double acquisitionTimeSeconds = (string)(viewModel.SelectedAcquisitionTimebaseItem).Content switch
+                {
+                    "NPLC (50Hz)" => acquisitionTime * (1.0 / 50.0),
+                    "NPLC (60Hz)" => acquisitionTime * (1.0 / 60.0),
+                    "s" => acquisitionTime,
+                    "ms" => acquisitionTime / 1e3,
+                    "μs" => acquisitionTime / 1e6,
+                    "ns" => acquisitionTime / 1e9,
+                    _ => throw new ApplicationException("Acquisition time combobox value not handled")
+                };
+                if (!double.TryParse(viewModel.DataRate, out double dataRateTime))
+                {
+                    viewModel.Status = "Error: Invalid data rate value";
+                    return;
+                }
+                double dataRateTimeSeconds = (string)viewModel.SelectedDataRateUnitItem.Content switch
+                {
+                    "Samples per second" => 1.0 / dataRateTime,
+                    "Seconds per sample" => dataRateTime,
+                    _ => throw new ApplicationException("Data rate combobox value not handled")
+                };
                 var fftWidth = int.Parse((string)(viewModel.SelectedFftWidthItem).Content);
-                var inputScaling = ((string)(viewModel.SelectedInputUnitItem).Content) switch
+                var inputScaling = (string)(viewModel.SelectedInputUnitItem).Content switch
                 {
                     "V" => 1.0,
                     "mV" => 1e-3,
@@ -100,17 +121,24 @@ namespace NSD.UI
                     return;
                 }
 
+                //records = Signals.WhiteNoise(100000, sampleRate, 1e-9).ToArray().ToList();
+
                 viewModel.Status = "Status: Calculating NSD...";
 
                 for (int i = 0; i < records.Count; i++)
                 {
                     records[i] *= inputScaling;
                 }
+
+                //double spectralValueCorrection = Math.Sqrt(dataRateTimeSeconds / acquisitionTimeSeconds);
+                double spectralValueCorrection = 1.0;
+                //double frequencyBinCorrection = Math.Sqrt(dataRateTimeSeconds / acquisitionTimeSeconds);
+                double frequencyBinCorrection = 1.0;
                 // Trim ignoreBins from either end of the real spectrum
-                int ignoreBins = 3;         //FTNI = 3, HFT90 = 3
+                int ignoreBins = (int)(4 * spectralValueCorrection);         //FTNI = 4, HFT90 = 4
                 if (viewModel.FftStacking)
                 {
-                    var nsd = await Welch.StackedNSD_Async(input: records.ToArray(), sampleRate, ignoreBins, outputWidth: fftWidth);
+                    var nsd = await Welch.StackedNSD_Async(input: records.ToArray(), 1.0 / acquisitionTimeSeconds, ignoreBins, outputWidth: fftWidth);
                     spectrum = nsd;
                 }
                 else
@@ -118,7 +146,7 @@ namespace NSD.UI
                     //var sine = Signals.OneVoltRmsTestSignal();
                     //await Welch.StackedNSD_Async(input: records.ToArray(), sampleRate, inputScale: 1e-3, outputWidth: fftWidth);
                     //var nsd = Welch.NSD_SingleSeries(input: sine, sampleRate, inputScale: 1, outputWidth: fftWidth);
-                    var nsd = await Welch.NSD_Async(input: records.ToArray(), sampleRate, ignoreBins, outputWidth: fftWidth);
+                    var nsd = await Welch.NSD_Async(input: records.ToArray(), 1.0 / acquisitionTimeSeconds, ignoreBins, outputWidth: fftWidth);
                     spectrum = nsd;
                 }
 
@@ -128,8 +156,23 @@ namespace NSD.UI
                 else
                     yArray = spectrum.Values;
 
+
+                for (int i = 0; i < yArray.Length; i++)
+                {
+                    yArray.Span[i] /= spectralValueCorrection;
+                }
+
+
+                for (int i = 0; i < spectrum.Frequencies.Length; i++)
+                {
+                    spectrum.Frequencies.Span[i] *= frequencyBinCorrection;
+                }
+
                 UpdateNSDChart(spectrum.Frequencies, yArray);
-                viewModel.Status = "Status: Processing complete";
+                if (spectrum.Stacking > 1)
+                    viewModel.Status = $"Status: Processing complete, {records.Count} input points, averaged {spectrum.Averages} spectrums over {spectrum.Stacking} stacking FFT widths";
+                else
+                    viewModel.Status = $"Status: Processing complete, {records.Count} input points, averaged {spectrum.Averages} spectrums";
             }
             catch (Exception ex)
             {

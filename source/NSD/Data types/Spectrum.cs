@@ -2,8 +2,10 @@
 {
     public Memory<double> Frequencies { get; set; }
     public Memory<double> Values { get; set; }
+    public int Averages { get; set; }
+    public int Stacking { get; set; } = 1;
 
-    public static Spectrum FromValues(Memory<double> values, double sampleRate)
+    public static Spectrum FromValues(Memory<double> values, double sampleRate, int averages)
     {
         int length = (values.Length / 2);
         Memory<double> frequencies = new double[length];
@@ -12,7 +14,7 @@
         {
             frequencies.Span[i] = i * dT;
         }
-        return new Spectrum() { Frequencies = frequencies, Values = values.Slice(0, length) };
+        return new Spectrum() { Frequencies = frequencies, Values = values.Slice(0, length), Averages = averages };
     }
 
     public void TrimStartEnd(int length)

@@ -24,7 +24,7 @@ namespace NSD
 
             Memory<double> vsd = new double[outputWidth];
             FFT.AverageVSDFromPSDCollection(spectrums, vsd);
-            var nsd = Spectrum.FromValues(vsd, sampleRate);
+            var nsd = Spectrum.FromValues(vsd, sampleRate, spectrums.Count);
             nsd.TrimStartEnd(startEndTrim);
             return nsd;
         }
@@ -56,10 +56,11 @@ namespace NSD
             double lowestFrequency = double.MaxValue;
             List<double> outputFrequencies = new();
             List<double> outputValues = new();
+            int averages = 0;
             for (int n = 0; n < widths.Count; n++)
             {
                 var nsd = NSD(input, sampleRate, startEndTrims[n], widths[n]);
-
+                averages += nsd.Averages;
                 for (int i = nsd.Frequencies.Length - 1; i >= 0; i--)
                 {
                     if (nsd.Frequencies.Span[i] < lowestFrequency)
@@ -72,7 +73,7 @@ namespace NSD
             }
             outputFrequencies.Reverse();
             outputValues.Reverse();
-            return new Spectrum() { Frequencies = outputFrequencies.ToArray(), Values = outputValues.ToArray() };
+            return new Spectrum() { Frequencies = outputFrequencies.ToArray(), Values = outputValues.ToArray(), Averages = averages, Stacking = widths.Count };
         }
 
         public static Task<Spectrum> StackedNSD_Async(Memory<double> input, double sampleRate, int startEndTrim, int outputWidth = 2048)

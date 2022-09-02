@@ -7,16 +7,20 @@ namespace NSD.UI
     public class Settings
     {
         public string? ProcessWorkingFolder { get; set; }
-        //public string? CollateWorkingFolder { get; set; }
-        public string? SampleRate { get; set; }
+        public string? AcquisitionTime { get; set; }
+        public string? AcquisitionTimeUnit { get; set; }
+        public string? DataRate { get; set; }
+        public string? DataRateUnit { get; set; }
 
         public static Settings Default()
         {
             return new Settings()
             {
                 ProcessWorkingFolder = Directory.GetCurrentDirectory(),
-                //CollateWorkingFolder = Directory.GetCurrentDirectory(),
-                SampleRate = "50"
+                AcquisitionTime = "1",
+                AcquisitionTimeUnit = "NPLC",
+                DataRate = "50",
+                DataRateUnit = "Samples per second"
             };
         }
 
@@ -25,6 +29,8 @@ namespace NSD.UI
             if (!File.Exists("settings.json"))
                 return Default();
             var json = File.ReadAllText("settings.json");
+            if (json.Contains("SampleRate"))
+                return Default();   // Ignore old settings file
             if (string.IsNullOrWhiteSpace(json))
                 return Default();
             var settings = JsonSerializer.Deserialize<Settings>(json);

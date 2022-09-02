@@ -5,7 +5,9 @@ VisualStudioVersion = 17.1.32421.90
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NSD.UI", "NSD.UI\NSD.UI.csproj", "{A5492109-BC61-49D4-A830-300B844F8A67}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NSD", "NSD\NSD.csproj", "{EBA91A52-FAE6-4E77-8714-79CBE5A2EEB8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NSD", "NSD\NSD.csproj", "{EBA91A52-FAE6-4E77-8714-79CBE5A2EEB8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NSD.Generator", "NSD.Generator\NSD.Generator.csproj", "{37A8D3A3-4EA6-4EEF-A094-5BFECF33C4C7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{EBA91A52-FAE6-4E77-8714-79CBE5A2EEB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EBA91A52-FAE6-4E77-8714-79CBE5A2EEB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EBA91A52-FAE6-4E77-8714-79CBE5A2EEB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37A8D3A3-4EA6-4EEF-A094-5BFECF33C4C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37A8D3A3-4EA6-4EEF-A094-5BFECF33C4C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37A8D3A3-4EA6-4EEF-A094-5BFECF33C4C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37A8D3A3-4EA6-4EEF-A094-5BFECF33C4C7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
