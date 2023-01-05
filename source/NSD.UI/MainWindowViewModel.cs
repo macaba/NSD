@@ -27,6 +27,7 @@ namespace NSD.UI
         public ComboBoxItem? SelectedAcquisitionTimebaseItem { get; set; }
         public ComboBoxItem? SelectedDataRateUnitItem { get; set; }
         public ComboBoxItem? SelectedFftWidthItem { get; set; }
+        public ComboBoxItem? SelectedStackingFftWidthItem { get; set; }
         public ComboBoxItem? SelectedInputUnitItem { get; set; }
         public ComboBoxItem? SelectedFileFormatItem { get; set; }
         public bool FftStacking { get; set; } = false;

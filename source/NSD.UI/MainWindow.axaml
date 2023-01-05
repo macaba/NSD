@@ -94,6 +94,22 @@
 							</ComboBox>
 
 							<CheckBox Margin="6,0,0,0" Content="Stacking" IsChecked="{Binding FftStacking}" IsEnabled="{Binding Enabled}"></CheckBox>
+							<Label VerticalAlignment="Center">Minimum stacking FFT width:</Label>
+							<ComboBox SelectedIndex="0" SelectedItem="{Binding SelectedStackingFftWidthItem, Mode=OneWayToSource}" IsEnabled="{Binding Enabled}" HorizontalAlignment="Stretch">
+								<ComboBoxItem>64</ComboBoxItem>
+								<ComboBoxItem>128</ComboBoxItem>
+								<ComboBoxItem>256</ComboBoxItem>
+								<ComboBoxItem>512</ComboBoxItem>
+								<ComboBoxItem>1024</ComboBoxItem>
+								<ComboBoxItem>2048</ComboBoxItem>
+								<ComboBoxItem>4096</ComboBoxItem>
+								<ComboBoxItem>8192</ComboBoxItem>
+								<ComboBoxItem>16384</ComboBoxItem>
+								<ComboBoxItem>32768</ComboBoxItem>
+								<ComboBoxItem>65536</ComboBoxItem>
+								<ComboBoxItem>131072</ComboBoxItem>
+								<ComboBoxItem>262144</ComboBoxItem>
+							</ComboBox>
 						</StackPanel>
 
 

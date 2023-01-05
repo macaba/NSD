@@ -34,14 +34,14 @@ namespace NSD
             return Task.Factory.StartNew(() => NSD(input, sampleRate, startEndTrim, outputWidth));
         }
 
-        public static Spectrum StackedNSD(Memory<double> input, double sampleRate, int startEndTrim, int outputWidth = 2048)
+        public static Spectrum StackedNSD(Memory<double> input, double sampleRate, int startEndTrim, int outputWidth = 2048, int minWidth = 64)
         {
             List<int> widths = new();
             List<int> startEndTrims = new();
             widths.Add(outputWidth);
             startEndTrims.Add(startEndTrim);
             int temp = outputWidth;
-            while (temp > 64)
+            while (temp > minWidth)
             {
                 temp /= 2;
                 widths.Add(temp);
@@ -76,9 +76,9 @@ namespace NSD
             return new Spectrum() { Frequencies = outputFrequencies.ToArray(), Values = outputValues.ToArray(), Averages = averages, Stacking = widths.Count };
         }
 
-        public static Task<Spectrum> StackedNSD_Async(Memory<double> input, double sampleRate, int startEndTrim, int outputWidth = 2048)
+        public static Task<Spectrum> StackedNSD_Async(Memory<double> input, double sampleRate, int startEndTrim, int outputWidth = 2048, int minWidth = 64)
         {
-            return Task.Factory.StartNew(() => StackedNSD(input, sampleRate, startEndTrim, outputWidth));
+            return Task.Factory.StartNew(() => StackedNSD(input, sampleRate, startEndTrim, outputWidth, minWidth));
         }
     }
 }

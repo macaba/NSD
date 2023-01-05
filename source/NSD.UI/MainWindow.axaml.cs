@@ -95,7 +95,13 @@ namespace NSD.UI
                     "Seconds per sample" => dataRateTime,
                     _ => throw new ApplicationException("Data rate combobox value not handled")
                 };
-                var fftWidth = int.Parse((string)(viewModel.SelectedFftWidthItem).Content);
+                var fftWidth = int.Parse((string)viewModel.SelectedFftWidthItem.Content);
+                var stackingFftWidth = int.Parse((string)viewModel.SelectedStackingFftWidthItem.Content); 
+                if(stackingFftWidth >= fftWidth)
+                {
+                    viewModel.Status = "Error: Invalid minimum stacking FFT width";
+                    return;
+                }
                 var inputScaling = (string)(viewModel.SelectedInputUnitItem).Content switch
                 {
                     "V" => 1.0,
@@ -138,7 +144,7 @@ namespace NSD.UI
                 int ignoreBins = (int)(4 * spectralValueCorrection);         //FTNI = 4, HFT90 = 4
                 if (viewModel.FftStacking)
                 {
-                    var nsd = await Welch.StackedNSD_Async(input: records.ToArray(), 1.0 / acquisitionTimeSeconds, ignoreBins, outputWidth: fftWidth);
+                    var nsd = await Welch.StackedNSD_Async(input: records.ToArray(), 1.0 / acquisitionTimeSeconds, ignoreBins, outputWidth: fftWidth, minWidth: stackingFftWidth);
                     spectrum = nsd;
                 }
                 else
