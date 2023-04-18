@@ -104,18 +104,13 @@ namespace NSD.UI
                     viewModel.Status = "Error: Invalid minimum stacking FFT width";
                     return;
                 }
-                var inputScaling = (string)(viewModel.SelectedInputUnitItem).Content switch
+                if (!double.TryParse(viewModel.InputScaling, out double inputScaling))
                 {
-                    "V" => 1.0,
-                    "mV" => 1e-3,
-                    "uV" => 1e-6,
-                    "nV" => 1e-9,
-                    _ => 1.0
-                };
+                    viewModel.Status = "Error: Invalid input scaling value";
+                    return;
+                }
 
                 viewModel.Status = "Status: Loading CSV...";
-
-
 
                 using var stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                 //using var reader = new StreamReader(stream);

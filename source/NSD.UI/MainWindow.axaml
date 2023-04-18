@@ -85,13 +85,8 @@
 								<ComboBoxItem>262144</ComboBoxItem>
 								<ComboBoxItem>524288</ComboBoxItem>
 							</ComboBox>
-							<Label VerticalAlignment="Center">Input unit</Label>
-							<ComboBox SelectedIndex="0" SelectedItem="{Binding SelectedInputUnitItem, Mode=OneWayToSource}" IsEnabled="{Binding Enabled}">
-								<ComboBoxItem>V</ComboBoxItem>
-								<ComboBoxItem>mV</ComboBoxItem>
-								<ComboBoxItem>uV</ComboBoxItem>
-								<ComboBoxItem>nV</ComboBoxItem>
-							</ComboBox>
+							<Label VerticalAlignment="Center">Input scaling</Label>
+							<TextBox Watermark="Input scaling..." Text="{Binding InputScaling}" IsEnabled="{Binding Enabled}" MinWidth="100"></TextBox>
 
 							<CheckBox Margin="6,0,0,0" Content="Stacking" IsChecked="{Binding FftStacking}" IsEnabled="{Binding Enabled}"></CheckBox>
 							<Label VerticalAlignment="Center">Minimum stacking FFT width:</Label>

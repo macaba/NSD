@@ -24,11 +24,11 @@ namespace NSD.UI
         [ObservableProperty] string outputFileName = "output.nsd";
         [ObservableProperty] bool sgFilterChecked = false;
         [ObservableProperty] IBrush statusBackground = Brushes.WhiteSmoke;
+        [ObservableProperty] string inputScaling = "1.0";
         public ComboBoxItem? SelectedAcquisitionTimebaseItem { get; set; }
         public ComboBoxItem? SelectedDataRateUnitItem { get; set; }
         public ComboBoxItem? SelectedFftWidthItem { get; set; }
         public ComboBoxItem? SelectedStackingFftWidthItem { get; set; }
-        public ComboBoxItem? SelectedInputUnitItem { get; set; }
         public ComboBoxItem? SelectedFileFormatItem { get; set; }
         public bool FftStacking { get; set; } = false;
         public double XMin { get; set; } = 0.01;
