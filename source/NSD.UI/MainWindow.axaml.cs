@@ -3,6 +3,7 @@ using Avalonia.Interactivity;
 using Avalonia.Input;
 using CsvHelper;
 using CsvHelper.Configuration;
+using NReco.Csv;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
@@ -10,6 +11,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Input.GestureRecognizers;
 
 namespace NSD.UI
 {
@@ -112,10 +114,24 @@ namespace NSD.UI
                 };
 
                 viewModel.Status = "Status: Loading CSV...";
+
+
+
                 using var stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-                using var reader = new StreamReader(stream);
-                using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
-                var records = await csv.GetRecordsAsync<double>().ToListAsync();
+                //using var reader = new StreamReader(stream);
+                //using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+                //var records = await csv.GetRecordsAsync<double>().ToListAsync();
+                List<double> records = new();
+
+                await Task.Run(() => {
+                    using var streamReader = new StreamReader(stream);
+                    var csvReader = new NReco.Csv.CsvReader(streamReader, ",");
+                    while (csvReader.Read())
+                    {
+                        records.Add(double.Parse(csvReader[0]));
+                    }
+                });
+
                 if (records.Count == 0)
                 {
                     viewModel.Status = "Error: No CSV records found";
@@ -197,7 +213,7 @@ namespace NSD.UI
             CsvConfiguration config = new(CultureInfo.InvariantCulture);
             config.Delimiter = ",";
             using var writer = new StreamWriter(outputFilePath);
-            using var csvWriter = new CsvWriter(writer, config);
+            using var csvWriter = new CsvHelper.CsvWriter(writer, config);
             dynamic header = new ExpandoObject();
             header.Frequency = "";
             header.Noise = "";
