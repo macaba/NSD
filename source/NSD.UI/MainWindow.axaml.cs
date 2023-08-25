@@ -1,9 +1,6 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Avalonia.Input;
-using CsvHelper;
 using CsvHelper.Configuration;
-using NReco.Csv;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
@@ -11,7 +8,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Avalonia.Input.GestureRecognizers;
 
 namespace NSD.UI
 {

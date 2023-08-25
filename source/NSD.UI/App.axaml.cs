@@ -24,6 +24,7 @@ namespace NSD.UI
         public static AppBuilder BuildAvaloniaApp()
           => AppBuilder.Configure<App>()
                 .UsePlatformDetect()
+                .WithInterFont()
                 .LogToTrace();
     }
 }

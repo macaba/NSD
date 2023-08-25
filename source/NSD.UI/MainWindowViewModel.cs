@@ -3,7 +3,6 @@ using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.ObjectModel;
-using System.Reactive;
 using System.Reflection;
 
 namespace NSD.UI

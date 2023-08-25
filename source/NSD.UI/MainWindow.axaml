@@ -45,7 +45,7 @@
 						<Button Grid.Row="0" Grid.Column="2" Margin="6,0,0,0" Content="Search" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Click="BtnSearch_Click"></Button>
 
 						<Label Grid.Row="1" Grid.Column="0" VerticalAlignment="Center">Input CSV file</Label>
-						<ComboBox Grid.Row="1" Grid.Column="1"  HorizontalAlignment="Stretch" Items="{Binding InputFileNames}" SelectedIndex="{Binding SelectedInputFileIndex}" IsEnabled="{Binding Enabled}"  VerticalContentAlignment="Center"></ComboBox>
+						<ComboBox Grid.Row="1" Grid.Column="1"  HorizontalAlignment="Stretch" ItemsSource="{Binding InputFileNames}" SelectedIndex="{Binding SelectedInputFileIndex}" IsEnabled="{Binding Enabled}"  VerticalContentAlignment="Center"></ComboBox>
 
 						<Label Grid.Row="3" Grid.Column="0" VerticalAlignment="Center">Acquisition time</Label>
 						<StackPanel Orientation="Horizontal" Grid.Row="3" Grid.Column="1">
