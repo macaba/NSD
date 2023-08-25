@@ -201,6 +201,45 @@ namespace NSD.UI
             }
         }
 
+        public void btnRateToTime_Click(object sender, RoutedEventArgs e)
+        {
+            if (!double.TryParse(viewModel.DataRate, out double dataRateTime))
+            {
+                viewModel.Status = "Error: Invalid data rate value";
+                return;
+            }
+            double dataRateTimeSeconds = (string)viewModel.SelectedDataRateUnitItem.Content switch
+            {
+                "Samples per second" => 1.0 / dataRateTime,
+                "Seconds per sample" => dataRateTime,
+                _ => throw new ApplicationException("Data rate combobox value not handled")
+            };
+
+            viewModel.AcquisitionTime = dataRateTimeSeconds.ToString();
+            cbTime.SelectedIndex = 2;
+        }
+
+        public void btnTimeToRate_Click(object sender, RoutedEventArgs e)
+        {
+            if (!double.TryParse(viewModel.AcquisitionTime, out double acquisitionTime))
+            {
+                viewModel.Status = "Error: Invalid acquisition time value";
+                return;
+            }
+            double acquisitionTimeSeconds = (string)(viewModel.SelectedAcquisitionTimebaseItem).Content switch
+            {
+                "NPLC (50Hz)" => acquisitionTime * (1.0 / 50.0),
+                "NPLC (60Hz)" => acquisitionTime * (1.0 / 60.0),
+                "s" => acquisitionTime,
+                "ms" => acquisitionTime / 1e3,
+                "μs" => acquisitionTime / 1e6,
+                "ns" => acquisitionTime / 1e9,
+                _ => throw new ApplicationException("Acquisition time combobox value not handled")
+            };
+            viewModel.DataRate = (1.0/acquisitionTimeSeconds).ToString();
+            cbRate.SelectedIndex = 0;
+        }
+
         public async void BtnGenerate_Click(object sender, RoutedEventArgs e)
         {
             var outputFilePath = Path.Combine(viewModel.ProcessWorkingFolder, viewModel.OutputFileName);

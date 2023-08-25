@@ -46,11 +46,11 @@
 
 						<Label Grid.Row="1" Grid.Column="0" VerticalAlignment="Center">Input CSV file</Label>
 						<ComboBox Grid.Row="1" Grid.Column="1"  HorizontalAlignment="Stretch" Items="{Binding InputFileNames}" SelectedIndex="{Binding SelectedInputFileIndex}" IsEnabled="{Binding Enabled}"  VerticalContentAlignment="Center"></ComboBox>
-						
+
 						<Label Grid.Row="3" Grid.Column="0" VerticalAlignment="Center">Acquisition time</Label>
 						<StackPanel Orientation="Horizontal" Grid.Row="3" Grid.Column="1">
 							<TextBox Watermark="Acquisition time..." Text="{Binding AcquisitionTime}" IsEnabled="{Binding Enabled}" MinWidth="100"/>
-							<ComboBox SelectedIndex="0" SelectedItem="{Binding SelectedAcquisitionTimebaseItem, Mode=OneWayToSource}" IsEnabled="{Binding Enabled}" HorizontalAlignment="Stretch" VerticalContentAlignment="Center">
+							<ComboBox x:Name="cbTime" SelectedIndex="0" SelectedItem="{Binding SelectedAcquisitionTimebaseItem, Mode=OneWayToSource}" IsEnabled="{Binding Enabled}" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" MinWidth="100">
 								<ComboBoxItem>NPLC (50Hz)</ComboBoxItem>
 								<ComboBoxItem>NPLC (60Hz)</ComboBoxItem>
 								<ComboBoxItem>s</ComboBoxItem>
@@ -58,9 +58,11 @@
 								<ComboBoxItem>μs</ComboBoxItem>
 								<ComboBoxItem>ns</ComboBoxItem>
 							</ComboBox>
+							<Button Content="--&gt;" VerticalAlignment="Stretch" Click="btnTimeToRate_Click"></Button>
+							<Button Content="&lt;--" VerticalAlignment="Stretch" Click="btnRateToTime_Click"></Button>
 							<Label VerticalAlignment="Center">Data rate</Label>
 							<TextBox Watermark="Data rate..." Text="{Binding DataRate}" IsEnabled="{Binding Enabled}" MinWidth="100"></TextBox>
-							<ComboBox SelectedIndex="0" SelectedItem="{Binding SelectedDataRateUnitItem, Mode=OneWayToSource}" IsEnabled="{Binding Enabled}" HorizontalAlignment="Stretch" VerticalContentAlignment="Center">
+							<ComboBox x:Name="cbRate" SelectedIndex="0" SelectedItem="{Binding SelectedDataRateUnitItem, Mode=OneWayToSource}" IsEnabled="{Binding Enabled}" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" MinWidth="100">
 								<ComboBoxItem>Samples per second</ComboBoxItem>
 								<ComboBoxItem>Seconds per sample</ComboBoxItem>
 							</ComboBox>
@@ -122,7 +124,7 @@
 							<CheckBox Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Margin="6,0,0,0" Content="Savitzky-Golay filter" IsChecked="{Binding SgFilterChecked}" IsEnabled="{Binding Enabled}"></CheckBox>
 						</StackPanel>
 						<Button Grid.Row="8" Grid.ColumnSpan="3" Margin="0,6,0,6" Content="Set axis" HorizontalAlignment="Stretch" Click="btnSetAxis_Click" IsEnabled="{Binding Enabled}"></Button>
-						
+
 					</Grid>
 					<ScottPlot:AvaPlot Grid.Row="1"  Name="WpfPlot1"/>
 					<Grid Grid.Row="2">
