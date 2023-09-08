@@ -95,7 +95,7 @@ namespace NSD.UI
                 };
                 var fftWidth = int.Parse((string)viewModel.SelectedFftWidthItem.Content);
                 var stackingFftWidth = int.Parse((string)viewModel.SelectedStackingFftWidthItem.Content); 
-                if(stackingFftWidth >= fftWidth)
+                if(stackingFftWidth >= fftWidth && viewModel.FftStacking)
                 {
                     viewModel.Status = "Error: Invalid minimum stacking FFT width";
                     return;
@@ -119,7 +119,10 @@ namespace NSD.UI
                     var csvReader = new NReco.Csv.CsvReader(streamReader, ",");
                     while (csvReader.Read())
                     {
-                        records.Add(double.Parse(csvReader[0]));
+                        var number = double.Parse(csvReader[0]);
+                        if (number > 1e12)      // Catches the overrange samples from DMM6500
+                            continue;
+                        records.Add(number);
                     }
                 });
 
