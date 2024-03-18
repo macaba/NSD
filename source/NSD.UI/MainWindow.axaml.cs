@@ -14,7 +14,7 @@ namespace NSD.UI
     public partial class MainWindow : Window
     {
         private readonly MainWindowViewModel viewModel;
-        private Spectrum spectrum;
+        private Spectrum spectrum = new();
         private Settings settings;
 
         public MainWindow()
@@ -44,16 +44,6 @@ namespace NSD.UI
                 viewModel.InputFileNames.Add(Path.GetFileName(file));
             }
             viewModel.SelectedInputFileIndex = 0;
-        }
-
-        public async void BtnCollateSearch_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        public async void BtnCollateAdd_Click(object sender, RoutedEventArgs e)
-        {
-
         }
 
         public async void btnRun_Click(object sender, RoutedEventArgs e)
