@@ -1,9 +1,16 @@
 ﻿using System;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace NSD.UI
 {
+    [JsonSourceGenerationOptions(WriteIndented = true)]
+    [JsonSerializable(typeof(Settings))]
+    internal partial class SourceGenerationContext : JsonSerializerContext
+    {
+    }
+
     public class Settings
     {
         public string? ProcessWorkingFolder { get; set; }
@@ -33,7 +40,7 @@ namespace NSD.UI
                 return Default();   // Ignore old settings file
             if (string.IsNullOrWhiteSpace(json))
                 return Default();
-            var settings = JsonSerializer.Deserialize<Settings>(json);
+            var settings = JsonSerializer.Deserialize<Settings>(json, SourceGenerationContext.Default.Settings);
             if (settings != null)
                 return settings;
             else
@@ -42,7 +49,7 @@ namespace NSD.UI
 
         public void Save()
         {
-            var json = JsonSerializer.Serialize(this, new JsonSerializerOptions() { WriteIndented = true });
+            var json = JsonSerializer.Serialize(this, SourceGenerationContext.Default.Settings);
             File.WriteAllText("settings.json", json);
         }
     }
