@@ -35,6 +35,8 @@ namespace NSD.UI
         public double YMin { get; set; } = 0.1;
         public double YMax { get; set; } = 100;
         public string WindowTitle { get { Version version = Assembly.GetExecutingAssembly().GetName().Version; return "NSD v" + version.Major + "." + version.Minor; } }
+        [ObservableProperty] bool csvHasHeader = false;
+        [ObservableProperty] int csvColumnIndex = 0;
 
         private Settings settings;
 

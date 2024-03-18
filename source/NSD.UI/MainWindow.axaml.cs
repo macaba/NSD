@@ -117,9 +117,12 @@ namespace NSD.UI
                 await Task.Run(() => {
                     using var streamReader = new StreamReader(stream);
                     var csvReader = new NReco.Csv.CsvReader(streamReader, ",");
+                    if (viewModel.CsvHasHeader)
+                        csvReader.Read();
+                    int columnIndex = viewModel.CsvColumnIndex;
                     while (csvReader.Read())
                     {
-                        var number = double.Parse(csvReader[0]);
+                        var number = double.Parse(csvReader[columnIndex]);
                         if (number > 1e12)      // Catches the overrange samples from DMM6500
                             continue;
                         records.Add(number);
