@@ -1,6 +1,7 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Interactivity;
 using CsvHelper.Configuration;
+using MsBox.Avalonia;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
@@ -30,8 +31,8 @@ namespace NSD.UI
         {
             if (!Directory.Exists(viewModel.ProcessWorkingFolder))
             {
-                var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow("Folder not found", "Search folder not found");
-                await messageBoxStandardWindow.Show();
+                var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandard("Folder not found", "Search folder not found");
+                await messageBoxStandardWindow.ShowAsync();
                 return;
             }
 
@@ -324,8 +325,8 @@ namespace NSD.UI
 
         private async Task ShowError(string title, string message)
         {
-            var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(title, message);
-            await messageBoxStandardWindow.Show();
+            var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandard(title, message);
+            await messageBoxStandardWindow.ShowAsync();
         }
     }
 }
