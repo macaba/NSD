@@ -85,8 +85,8 @@ namespace NSD.UI
                     _ => throw new ApplicationException("Data rate combobox value not handled")
                 };
                 var fftWidth = int.Parse((string)viewModel.SelectedFftWidthItem.Content);
-                var stackingFftWidth = int.Parse((string)viewModel.SelectedStackingFftWidthItem.Content); 
-                if(stackingFftWidth >= fftWidth && viewModel.FftStacking)
+                var stackingFftWidth = int.Parse((string)viewModel.SelectedStackingFftWidthItem.Content);
+                if (stackingFftWidth >= fftWidth && viewModel.FftStacking)
                 {
                     viewModel.Status = "Error: Invalid minimum stacking FFT width";
                     return;
@@ -105,7 +105,8 @@ namespace NSD.UI
                 //var records = await csv.GetRecordsAsync<double>().ToListAsync();
                 List<double> records = new();
 
-                await Task.Run(() => {
+                await Task.Run(() =>
+                {
                     using var streamReader = new StreamReader(stream);
                     var csvReader = new NReco.Csv.CsvReader(streamReader, ",");
                     if (viewModel.CsvHasHeader)
@@ -229,8 +230,14 @@ namespace NSD.UI
                 "ns" => acquisitionTime / 1e9,
                 _ => throw new ApplicationException("Acquisition time combobox value not handled")
             };
-            viewModel.DataRate = (1.0/acquisitionTimeSeconds).ToString();
+            viewModel.DataRate = (1.0 / acquisitionTimeSeconds).ToString();
             cbRate.SelectedIndex = 0;
+        }
+
+        public class NsdSample
+        {
+            public double Frequency { get; set; }
+            public double Noise { get; set; }
         }
 
         public async void BtnGenerate_Click(object sender, RoutedEventArgs e)
@@ -241,10 +248,7 @@ namespace NSD.UI
             config.Delimiter = ",";
             using var writer = new StreamWriter(outputFilePath);
             using var csvWriter = new CsvHelper.CsvWriter(writer, config);
-            dynamic header = new ExpandoObject();
-            header.Frequency = "";
-            header.Noise = "";
-            csvWriter.WriteDynamicHeader(header);
+            csvWriter.WriteHeader<NsdSample>();
             csvWriter.NextRecord();
 
             for (int i = 0; i < spectrum.Frequencies.Length; i++)
