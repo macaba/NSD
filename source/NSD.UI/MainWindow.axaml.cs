@@ -297,15 +297,18 @@ namespace NSD.UI
                 LabelFormatter = logTickLabels,
                 MinorTickGenerator = new LogMinorTickGenerator() { Divisions = 10 },
                 IntegerTicksOnly = true,
+                TargetTickCount = 10
             };
             NumericAutomatic yTickGenerator = new()
             {
                 LabelFormatter = logTickLabels,
                 MinorTickGenerator = new LogMinorTickGenerator() { Divisions = 10 },
                 IntegerTicksOnly = true,
+                TargetTickCount = 10
             };
             WpfPlot1.Plot.Axes.Bottom.TickGenerator = xTickGenerator;
             WpfPlot1.Plot.Axes.Left.TickGenerator = yTickGenerator;
+            WpfPlot1.Plot.Axes.Hairline(true);
             WpfPlot1.Plot.XLabel("Frequency (Hz)", 18);
             WpfPlot1.Plot.YLabel("Noise (nV/rHz)", 18);
             WpfPlot1.Plot.Axes.Bottom.Label.Bold = false;
