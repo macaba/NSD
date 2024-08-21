@@ -1,4 +1,4 @@
-name: Build
+name: Build binaries
 on: [push]
 jobs:
   build:   
@@ -13,12 +13,25 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
+
       - name: Install dependencies
         run: dotnet restore
-        working-directory: ./source
-      - name:  Run win-x64 build
-        working-directory: ./build-scripts
-        run: ./"NSD.UI (win-x64).bat"
-      - name:  Run linux-x64 build
-        working-directory: ./build-scripts
-        run: ./"NSD.UI (linux-x64).bat"
+        working-directory: source
+
+      - name: Run win-x64 build
+        working-directory: build-scripts
+        run: "NSD.UI (win-x64).bat"
+      - name: Upload win-x64 build
+        uses: actions/upload-artifact@v4
+        with:
+          name: NSD.win-x64.exe
+          path: builds/NSD.UI/win-x64/NSD.UI.exe
+
+      - name: Run linux-x64 build
+        working-directory: build-scripts
+        run: "NSD.UI (linux-x64).bat"
+      - name: Upload linux-x64 build
+        uses: actions/upload-artifact@v4
+        with:
+          name: NSD.linux-x64
+          path: builds/NSD.UI/linux-x64/NSD.UI
