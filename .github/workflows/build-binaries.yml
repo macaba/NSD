@@ -20,7 +20,7 @@ jobs:
 
       - name: Run win-x64 build
         working-directory: build-scripts
-        run: "NSD.UI (win-x64).bat"
+        run: ./"NSD.UI (win-x64).bat"
       - name: Upload win-x64 build
         uses: actions/upload-artifact@v4
         with:
@@ -29,7 +29,7 @@ jobs:
 
       - name: Run linux-x64 build
         working-directory: build-scripts
-        run: "NSD.UI (linux-x64).bat"
+        run: ./"NSD.UI (linux-x64).bat"
       - name: Upload linux-x64 build
         uses: actions/upload-artifact@v4
         with:
