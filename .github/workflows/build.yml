@@ -1,0 +1,24 @@
+name: Build
+on: [push]
+jobs:
+  build:   
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        dotnet-version: [ '8.0.x' ]
+        os: [windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+      - name: Install dependencies
+        run: dotnet restore
+        working-directory: ./source
+      - name:  Run win-x64 build
+        working-directory: ./build-scripts
+        run: ./"NSD.UI (win-x64).bat"
+      - name:  Run linux-x64 build
+        working-directory: ./build-scripts
+        run: ./"NSD.UI (linux-x64).bat"

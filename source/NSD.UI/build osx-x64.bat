@@ -1,1 +1,0 @@
-dotnet publish -r osx-x64 -c Release -p:PublishSingleFile=true /p:PublishTrimmed=true /p:IncludeNativeLibrariesForSelfExtract=true /p:EnableCompressionInSingleFile=true --output ../../builds/osx-x64/
