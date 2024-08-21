@@ -1,1 +1,1 @@
-dotnet publish -r win-x64 -c Release -p:PublishSingleFile=true /p:PublishTrimmed=true /p:IncludeNativeLibrariesForSelfExtract=true /p:EnableCompressionInSingleFile=true --output ../../builds/win-x64/
+dotnet publish -r win-x64 -c Release -p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true /p:EnableCompressionInSingleFile=true --output ../../builds/win-x64/

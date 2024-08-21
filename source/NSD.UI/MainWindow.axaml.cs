@@ -4,7 +4,6 @@ using CsvHelper.Configuration;
 using MsBox.Avalonia;
 using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.Globalization;
 using System.IO;
 using System.Linq;

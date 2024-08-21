@@ -1,6 +1,10 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using MsBox.Avalonia;
+using MsBox.Avalonia.Enums;
+using System;
+using System.Threading.Tasks;
 
 namespace NSD.UI
 {
@@ -9,6 +13,26 @@ namespace NSD.UI
         public override void Initialize()
         {
             AvaloniaXamlLoader.Load(this);
+            SetupExceptionHandling();
+        }
+
+        private void SetupExceptionHandling()
+        {
+            AppDomain.CurrentDomain.UnhandledException += (s, e) =>
+                LogUnhandledException((Exception)e.ExceptionObject, "AppDomain.CurrentDomain.UnhandledException");
+
+            TaskScheduler.UnobservedTaskException += (s, e) =>
+            {
+                LogUnhandledException(e.Exception, "TaskScheduler.UnobservedTaskException");
+                e.SetObserved();
+            };
+        }
+
+        private void LogUnhandledException(Exception exception, string source)
+        {
+            string message = $"Unhandled exception:\n\n{exception.Message}";
+            var box = MessageBoxManager.GetMessageBoxStandard(source, message, ButtonEnum.Ok);
+            box.ShowAsync();
         }
 
         public override void OnFrameworkInitializationCompleted()
