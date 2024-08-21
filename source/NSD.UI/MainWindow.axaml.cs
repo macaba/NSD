@@ -292,14 +292,20 @@ namespace NSD.UI
         private void CommonChartConfig()
         {
             static string logTickLabels(double y) => Math.Pow(10, y).ToString();    // "N0"
-            NumericAutomatic logTickGenerator = new()
+            NumericAutomatic xTickGenerator = new()
             {
                 LabelFormatter = logTickLabels,
                 MinorTickGenerator = new LogMinorTickGenerator() { Divisions = 10 },
                 IntegerTicksOnly = true,
             };
-            WpfPlot1.Plot.Axes.Bottom.TickGenerator = logTickGenerator;
-            WpfPlot1.Plot.Axes.Left.TickGenerator = logTickGenerator;
+            NumericAutomatic yTickGenerator = new()
+            {
+                LabelFormatter = logTickLabels,
+                MinorTickGenerator = new LogMinorTickGenerator() { Divisions = 10 },
+                IntegerTicksOnly = true,
+            };
+            WpfPlot1.Plot.Axes.Bottom.TickGenerator = xTickGenerator;
+            WpfPlot1.Plot.Axes.Left.TickGenerator = yTickGenerator;
             WpfPlot1.Plot.XLabel("Frequency (Hz)", 18);
             WpfPlot1.Plot.YLabel("Noise (nV/rHz)", 18);
             WpfPlot1.Plot.Axes.Bottom.Label.Bold = false;
