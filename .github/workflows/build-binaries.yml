@@ -24,8 +24,8 @@ jobs:
       - name: Upload win-x64 build
         uses: actions/upload-artifact@v4
         with:
-          name: NSD.win-x64.exe
-          path: builds/NSD.UI/win-x64/NSD.UI.exe
+          name: NSD-win-x64
+          path: builds/NSD.UI/win-x64/NSD-win-x64.exe
 
       - name: Run linux-x64 build
         working-directory: build-scripts
@@ -33,5 +33,5 @@ jobs:
       - name: Upload linux-x64 build
         uses: actions/upload-artifact@v4
         with:
-          name: NSD.linux-x64
-          path: builds/NSD.UI/linux-x64/NSD.UI
+          name: NSD-linux-x64
+          path: builds/NSD.UI/linux-x64/NSD-linux-x64
