@@ -4,6 +4,7 @@ using Avalonia.Markup.Xaml;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Enums;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace NSD.UI
@@ -28,11 +29,10 @@ namespace NSD.UI
             };
         }
 
-        private void LogUnhandledException(Exception exception, string source)
+        private async void LogUnhandledException(Exception exception, string source)
         {
-            string message = $"Unhandled exception:\n\n{exception.Message}";
-            var box = MessageBoxManager.GetMessageBoxStandard(source, message, ButtonEnum.Ok);
-            box.ShowAsync();
+            string message = $"Unhandled exception:\n\n{exception}\n";
+            File.AppendAllText("error.txt", message);
         }
 
         public override void OnFrameworkInitializationCompleted()

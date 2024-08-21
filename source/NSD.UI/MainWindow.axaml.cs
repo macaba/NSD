@@ -2,6 +2,7 @@
 using Avalonia.Interactivity;
 using CsvHelper.Configuration;
 using MsBox.Avalonia;
+using ScottPlot.TickGenerators;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -269,61 +270,47 @@ namespace NSD.UI
                     yArray = spectrum.Values;
                 UpdateNSDChart(spectrum.Frequencies, yArray);
             }
-            WpfPlot1.Plot.SetAxisLimits(Math.Log10(viewModel.XMin), Math.Log10(viewModel.XMax), Math.Log10(viewModel.YMin), Math.Log10(viewModel.YMax));
-            WpfPlot1.Render();
+            WpfPlot1.Plot.Axes.SetLimits(Math.Log10(viewModel.XMin), Math.Log10(viewModel.XMax), Math.Log10(viewModel.YMin), Math.Log10(viewModel.YMax));
+            WpfPlot1.Refresh();
         }
 
         public void UpdateNSDChart(Memory<double> x, Memory<double> y)
         {
-            WpfPlot1.Configuration.DpiStretch = false;
-            WpfPlot1.Configuration.Quality = ScottPlot.Control.QualityMode.High;
             WpfPlot1.Plot.Clear();
             double[] logXs = x.ToArray().Select(pt => Math.Log10(pt)).ToArray();
             double[] logYs = y.ToArray().Select(pt => Math.Log10(pt * 1E9)).ToArray();
-            var scatter = WpfPlot1.Plot.AddScatterLines(logXs, logYs);
-            static string logTickLabels(double y) => Math.Pow(10, y).ToString();    // "N0"
-            WpfPlot1.Plot.XAxis.TickLabelFormat(logTickLabels);
-            WpfPlot1.Plot.YAxis.TickLabelFormat(logTickLabels);
-            WpfPlot1.Plot.XAxis.Label("Frequency (Hz)");
-            WpfPlot1.Plot.YAxis.Label("Noise (nV/rHz)");
-            WpfPlot1.Plot.XAxis.LabelStyle(fontSize: 18);
-            WpfPlot1.Plot.XAxis.TickLabelStyle(fontSize: 14);
-            WpfPlot1.Plot.YAxis.LabelStyle(fontSize: 18);
-            WpfPlot1.Plot.YAxis.TickLabelStyle(fontSize: 14);
-            WpfPlot1.Plot.Title("NSD estimation", bold: false, size: 18);
-            WpfPlot1.Plot.YAxis.MinorLogScale(true, minorTickCount: 10);
-            WpfPlot1.Plot.YAxis.MajorGrid(true, System.Drawing.Color.FromArgb(80, System.Drawing.Color.Black));
-            WpfPlot1.Plot.YAxis.MinorGrid(true, System.Drawing.Color.FromArgb(20, System.Drawing.Color.Black));
-            WpfPlot1.Plot.XAxis.MinorLogScale(true);
-            WpfPlot1.Plot.XAxis.MajorGrid(true, System.Drawing.Color.FromArgb(80, System.Drawing.Color.Black));
-            WpfPlot1.Plot.XAxis.MinorGrid(true, System.Drawing.Color.FromArgb(20, System.Drawing.Color.Black));
-            WpfPlot1.Plot.SetAxisLimits(Math.Log10(viewModel.XMin), Math.Log10(viewModel.XMax), Math.Log10(viewModel.YMin), Math.Log10(viewModel.YMax));
-            WpfPlot1.Render();
+            var scatter = WpfPlot1.Plot.Add.ScatterLine(logXs, logYs);
+            CommonChartConfig();
         }
 
         private void InitNsdChart()
         {
-            //WpfPlot1.Configuration.DpiStretch = false;
-            WpfPlot1.Configuration.Quality = ScottPlot.Control.QualityMode.High;
             WpfPlot1.Plot.Clear();
+            CommonChartConfig();
+        }
+
+        private void CommonChartConfig()
+        {
             static string logTickLabels(double y) => Math.Pow(10, y).ToString();    // "N0"
-            WpfPlot1.Plot.XAxis.TickLabelFormat(logTickLabels);
-            WpfPlot1.Plot.YAxis.TickLabelFormat(logTickLabels);
-            WpfPlot1.Plot.XAxis.Label("Frequency (Hz)");
-            WpfPlot1.Plot.YAxis.Label("Noise (nV/rHz)");
-            WpfPlot1.Plot.XAxis.LabelStyle(fontSize: 18);
-            WpfPlot1.Plot.XAxis.TickLabelStyle(fontSize: 14);
-            WpfPlot1.Plot.YAxis.LabelStyle(fontSize: 18);
-            WpfPlot1.Plot.YAxis.TickLabelStyle(fontSize: 14);
-            WpfPlot1.Plot.Title("NSD estimation", bold: false, size: 18);
-            WpfPlot1.Plot.YAxis.MinorLogScale(true, minorTickCount: 10);
-            WpfPlot1.Plot.YAxis.MajorGrid(true, System.Drawing.Color.FromArgb(80, System.Drawing.Color.Black));
-            WpfPlot1.Plot.YAxis.MinorGrid(true, System.Drawing.Color.FromArgb(20, System.Drawing.Color.Black));
-            WpfPlot1.Plot.XAxis.MinorLogScale(true);
-            WpfPlot1.Plot.XAxis.MajorGrid(true, System.Drawing.Color.FromArgb(80, System.Drawing.Color.Black));
-            WpfPlot1.Plot.XAxis.MinorGrid(true, System.Drawing.Color.FromArgb(20, System.Drawing.Color.Black));
-            WpfPlot1.Plot.SetAxisLimits(Math.Log10(viewModel.XMin), Math.Log10(viewModel.XMax), Math.Log10(viewModel.YMin), Math.Log10(viewModel.YMax));
-            WpfPlot1.Render();
+            NumericAutomatic logTickGenerator = new()
+            {
+                LabelFormatter = logTickLabels,
+                MinorTickGenerator = new LogMinorTickGenerator() { Divisions = 10 },
+                IntegerTicksOnly = true,
+            };
+            WpfPlot1.Plot.Axes.Bottom.TickGenerator = logTickGenerator;
+            WpfPlot1.Plot.Axes.Left.TickGenerator = logTickGenerator;
+            WpfPlot1.Plot.XLabel("Frequency (Hz)", 18);
+            WpfPlot1.Plot.YLabel("Noise (nV/rHz)", 18);
+            WpfPlot1.Plot.Axes.Bottom.Label.Bold = false;
+            WpfPlot1.Plot.Axes.Left.Label.Bold = false;
+            WpfPlot1.Plot.Title("NSD estimation", size: 18);
+            WpfPlot1.Plot.Axes.Title.Label.Bold = false;
+            WpfPlot1.Plot.Grid.MinorLineWidth = 1;
+            WpfPlot1.Plot.Grid.MinorLineColor = ScottPlot.Color.FromARGB(0x14000000);
+            WpfPlot1.Plot.Grid.MajorLineColor = ScottPlot.Color.FromARGB(0x50000000);
+            WpfPlot1.Plot.Axes.SetLimits(Math.Log10(viewModel.XMin), Math.Log10(viewModel.XMax), Math.Log10(viewModel.YMin), Math.Log10(viewModel.YMax));
+            WpfPlot1.Refresh();
         }
 
         private async Task ShowError(string title, string message)
