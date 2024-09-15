@@ -104,7 +104,7 @@ namespace NSD.UI
                 //using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
                 //var records = await csv.GetRecordsAsync<double>().ToListAsync();
                 List<double> records = new();
-
+                DateTimeOffset fileParseStart = DateTimeOffset.UtcNow;
                 await Task.Run(() =>
                 {
                     using var streamReader = new StreamReader(stream);
@@ -120,7 +120,7 @@ namespace NSD.UI
                         records.Add(number);
                     }
                 });
-
+                DateTimeOffset fileParseFinish = DateTimeOffset.UtcNow;
                 if (records.Count == 0)
                 {
                     viewModel.Status = "Error: No CSV records found";
@@ -141,6 +141,7 @@ namespace NSD.UI
                     records[i] *= inputScaling;
                 }
 
+                DateTimeOffset nsdComputeStart = DateTimeOffset.UtcNow;
                 //double spectralValueCorrection = Math.Sqrt(dataRateTimeSeconds / acquisitionTimeSeconds);
                 double spectralValueCorrection = 1.0;
                 //double frequencyBinCorrection = Math.Sqrt(dataRateTimeSeconds / acquisitionTimeSeconds);
@@ -160,7 +161,7 @@ namespace NSD.UI
                     var nsd = await Welch.NSD_Async(input: records.ToArray(), 1.0 / acquisitionTimeSeconds, ignoreBins, outputWidth: fftWidth);
                     spectrum = nsd;
                 }
-
+                DateTimeOffset nsdComputeFinish = DateTimeOffset.UtcNow;
                 Memory<double> yArray;
                 if (viewModel.SgFilterChecked)
                     yArray = new SavitzkyGolayFilter(5, 1).Process(spectrum.Values.Span);
@@ -180,10 +181,12 @@ namespace NSD.UI
                 }
 
                 UpdateNSDChart(spectrum.Frequencies, yArray);
+                var fileParseTimeSec = fileParseFinish.Subtract(fileParseStart).TotalSeconds;
+                var nsdComputeTimeSec = nsdComputeFinish.Subtract(nsdComputeStart).TotalSeconds;
                 if (spectrum.Stacking > 1)
-                    viewModel.Status = $"Status: Processing complete, {records.Count} input points, averaged {spectrum.Averages} spectrums over {spectrum.Stacking} stacking FFT widths";
+                    viewModel.Status = $"Status: Processing complete, {records.Count} input points, averaged {spectrum.Averages} spectrums over {spectrum.Stacking} stacking FFT widths. File parse time: {fileParseTimeSec:F3}s, NSD compute time: {nsdComputeTimeSec:F3}s.";
                 else
-                    viewModel.Status = $"Status: Processing complete, {records.Count} input points, averaged {spectrum.Averages} spectrums";
+                    viewModel.Status = $"Status: Processing complete, {records.Count} input points, averaged {spectrum.Averages} spectrums. File parse time: {fileParseTimeSec:F3}s, NSD compute time: {nsdComputeTimeSec:F3}s.";
             }
             catch (Exception ex)
             {

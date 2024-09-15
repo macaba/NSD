@@ -1,7 +1,4 @@
-﻿using MathNet.Numerics;
-using MathNet.Numerics.IntegralTransforms;
-using System;
-using System.Numerics;
+﻿using System.Numerics;
 
 namespace NSD
 {
@@ -12,7 +9,7 @@ namespace NSD
             double[] x = new double[data.Length];
             for (int i = 0; i < data.Length; i++)
                 x[i] = i;
-            var (A, B) = Fit.Line(x, data.Span.ToArray());
+            var (A, B) = MathNet.Numerics.Fit.Line(x, data.Span.ToArray());
             // Calculate average
             //double sum = 0;
             //for (int i = 0; i < data.Length; i++)
@@ -35,7 +32,7 @@ namespace NSD
             Memory<double> result = new double[data.Length];
             for (int i = 0; i < data.Length; i++)
                 x[i] = i;
-            var (A, B) = Fit.Line(x, data.Span.ToArray());
+            var (A, B) = MathNet.Numerics.Fit.Line(x, data.Span.ToArray());
             for (int i = 0; i < data.Length; i++)
             {
                 result.Span[i] = (data.Span[i] - (A + B * i));
@@ -56,7 +53,9 @@ namespace NSD
             }
 
             // Apply transform
-            Fourier.Forward(fourierData, FourierOptions.NoScaling);
+            //MathNet.Numerics.IntegralTransforms.Fourier.Forward(fourierData, MathNet.Numerics.IntegralTransforms.FourierOptions.NoScaling);
+            var fft = new FftFlat.FastFourierTransform(inputData.Length);
+            fft.Forward(fourierData);
 
             // Convert to magnitude spectrum
             double s2 = S2(window.Span);
@@ -82,7 +81,9 @@ namespace NSD
             }
 
             // Apply transform
-            Fourier.Forward(fourierData, FourierOptions.NoScaling);
+            //MathNet.Numerics.IntegralTransforms.Fourier.Forward(fourierData, MathNet.Numerics.IntegralTransforms.FourierOptions.NoScaling);
+            var fft = new FftFlat.FastFourierTransform(inputData.Length);
+            fft.Forward(fourierData);
 
             // Convert to magnitude spectrum
             double s1 = S1(window.Span);
