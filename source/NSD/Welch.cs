@@ -40,29 +40,39 @@
         public static Spectrum StackedNSD(Memory<double> input, double sampleRate, int startEndTrim, int outputWidth = 2048, int minWidth = 64)
         {
             List<int> widths = new();
-            List<int> startEndTrims = new();
+            Dictionary<int, int> startEndTrims = new();
+
             widths.Add(outputWidth);
-            startEndTrims.Add(startEndTrim);
-            int temp = outputWidth;
-            while (temp > minWidth)
+            startEndTrims[outputWidth] = startEndTrim;
+            
+            int width = outputWidth;
+            while (width > minWidth)
             {
-                temp /= 2;
-                widths.Add(temp);
-                if (temp == 64)
-                    startEndTrims.Add(startEndTrim);
+                width /= 2;
+                widths.Add(width);
+                if (width == 64)
+                    startEndTrims[width] = startEndTrim;
                 else
-                    startEndTrims.Add(startEndTrim * 2);    //Trim a bit more for the shorter widths
+                    startEndTrims[width] = startEndTrim * 2;    //Trim a bit more for the shorter widths
             }
+
             widths.Reverse();      // Smallest to largest
             startEndTrims.Reverse();
+
+            //Run parallel NSDs
+            var spectrums = new Dictionary<int, Spectrum>();
+            Parallel.ForEach(widths, new ParallelOptions { MaxDegreeOfParallelism = 8 }, width =>
+            {
+                spectrums[width] = NSD(input, sampleRate, startEndTrims[width], width);
+            });
 
             double lowestFrequency = double.MaxValue;
             List<double> outputFrequencies = new();
             List<double> outputValues = new();
             int averages = 0;
-            for (int n = 0; n < widths.Count; n++)
+            foreach(var computedWidth in widths)
             {
-                var nsd = NSD(input, sampleRate, startEndTrims[n], widths[n]);
+                var nsd = spectrums[computedWidth];
                 averages += nsd.Averages;
                 for (int i = nsd.Frequencies.Length - 1; i >= 0; i--)
                 {
