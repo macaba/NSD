@@ -1,30 +1,33 @@
-﻿using System;
-
-namespace NSD
+﻿namespace NSD
 {
     public class Welch
     {
-        public static Spectrum NSD(Memory<double> input, double sampleRate, int startEndTrim, int outputWidth = 2048)
+        public static Spectrum NSD(ReadOnlyMemory<double> input, double sampleRate, int startEndTrim, int outputWidth = 2048)
         {
             var window = Windows.HFT90D(outputWidth, out double optimumOverlap);
+            var fft = new FFT(outputWidth);
             int startIndex = 0;
             int endIndex = outputWidth;
             int overlap = (int)(outputWidth * (1.0 - optimumOverlap));
-            List<Memory<double>> spectrums = new();
+            int spectrumCount = 0;
+            Memory<double> workingMemory = new double[outputWidth];
+            Memory<double> lineFitOutput = new double[outputWidth];
+            Memory<double> psdMemory = new double[outputWidth];
             while (endIndex < input.Length)
             {
-                var newSlice = input.Slice(startIndex, outputWidth);
-                var data = FFT.SubtractLineFitWithScaling(newSlice);
-                Memory<double> psd = new double[outputWidth];
-                FFT.PSD(data, psd, window, sampleRate);
-                spectrums.Add(psd);
+                var lineFitInput = input.Slice(startIndex, outputWidth);
+                fft.SubtractLineFitWithScaling(lineFitInput, lineFitOutput);
+                fft.PSD(lineFitOutput, psdMemory, window, sampleRate);
+                //spectrums.Add(psd);
+                FFT.AddPSDToWorkingMemory(psdMemory, workingMemory); spectrumCount++;
                 startIndex += overlap;
                 endIndex += overlap;
             }
 
-            Memory<double> vsd = new double[outputWidth];
-            FFT.AverageVSDFromPSDCollection(spectrums, vsd);
-            var nsd = Spectrum.FromValues(vsd, sampleRate, spectrums.Count);
+            //Memory<double> vsd = new double[outputWidth];
+            //FFT.AverageVSDFromPSDCollection(spectrums, vsd);
+            FFT.ConvertWorkingMemoryToAverageVSDInPlace(workingMemory, spectrumCount);
+            var nsd = Spectrum.FromValues(workingMemory, sampleRate, spectrumCount);
             nsd.TrimStartEnd(startEndTrim);
             return nsd;
         }
