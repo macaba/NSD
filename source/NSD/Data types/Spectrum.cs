@@ -17,9 +17,24 @@
         return new Spectrum() { Frequencies = frequencies, Values = values.Slice(0, length), Averages = averages };
     }
 
-    public void TrimStartEnd(int length)
+    bool trimmedDC = false;
+    public void TrimDC()
     {
-        Frequencies = Frequencies.Slice(length, Frequencies.Length - length * 2);
-        Values = Values.Slice(length, Values.Length - length * 2);
+        if (!trimmedDC)
+        {
+            trimmedDC = true;
+            Frequencies = Frequencies[1..];
+            Values = Values[1..];
+        }
+    }
+
+    int trimmedStartEndBins = 0;
+    public void TrimStartEnd(int bins)
+    {
+        if (trimmedStartEndBins != 0)
+            throw new Exception($"TrimStartEnd already called with bins: {trimmedStartEndBins}");
+        trimmedStartEndBins = bins;
+        Frequencies = Frequencies.Slice(bins, Frequencies.Length - bins * 2);
+        Values = Values.Slice(bins, Values.Length - bins * 2);
     }
 }

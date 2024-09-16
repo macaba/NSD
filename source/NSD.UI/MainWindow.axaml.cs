@@ -143,14 +143,13 @@ namespace NSD.UI
 
                 DateTimeOffset nsdComputeStart = DateTimeOffset.UtcNow;
                 //double spectralValueCorrection = Math.Sqrt(dataRateTimeSeconds / acquisitionTimeSeconds);
-                double spectralValueCorrection = 1.0;
+                //double spectralValueCorrection = 1.0;
                 //double frequencyBinCorrection = Math.Sqrt(dataRateTimeSeconds / acquisitionTimeSeconds);
-                double frequencyBinCorrection = 1.0;
-                // Trim ignoreBins from either end of the real spectrum
-                int ignoreBins = (int)(4 * spectralValueCorrection);         //FTNI = 4, HFT90 = 4
+                //double frequencyBinCorrection = 1.0;
                 if (viewModel.FftStacking)
                 {
-                    var nsd = await Welch.StackedNSD_Async(input: records.ToArray(), 1.0 / acquisitionTimeSeconds, ignoreBins, outputWidth: fftWidth, minWidth: stackingFftWidth);
+                    //var nsd = await Welch.StackedNSD_Async(input: records.ToArray(), 1.0 / acquisitionTimeSeconds, ignoreBins, outputWidth: fftWidth, minWidth: stackingFftWidth);
+                    var nsd = await Task.Factory.StartNew(() => Welch.StackedNSD(input: records.ToArray(), 1.0 / acquisitionTimeSeconds, maxWidth: fftWidth, minWidth: stackingFftWidth));
                     spectrum = nsd;
                 }
                 else
@@ -158,7 +157,7 @@ namespace NSD.UI
                     //var sine = Signals.OneVoltRmsTestSignal();
                     //await Welch.StackedNSD_Async(input: records.ToArray(), sampleRate, inputScale: 1e-3, outputWidth: fftWidth);
                     //var nsd = Welch.NSD_SingleSeries(input: sine, sampleRate, inputScale: 1, outputWidth: fftWidth);
-                    var nsd = await Welch.NSD_Async(input: records.ToArray(), 1.0 / acquisitionTimeSeconds, ignoreBins, outputWidth: fftWidth);
+                    var nsd = await Task.Factory.StartNew(() => Welch.NSD(input: records.ToArray(), 1.0 / acquisitionTimeSeconds, outputWidth: fftWidth));
                     spectrum = nsd;
                 }
                 DateTimeOffset nsdComputeFinish = DateTimeOffset.UtcNow;
@@ -168,17 +167,15 @@ namespace NSD.UI
                 else
                     yArray = spectrum.Values;
 
+                //for (int i = 0; i < yArray.Length; i++)
+                //{
+                //    yArray.Span[i] /= spectralValueCorrection;
+                //}
 
-                for (int i = 0; i < yArray.Length; i++)
-                {
-                    yArray.Span[i] /= spectralValueCorrection;
-                }
-
-
-                for (int i = 0; i < spectrum.Frequencies.Length; i++)
-                {
-                    spectrum.Frequencies.Span[i] *= frequencyBinCorrection;
-                }
+                //for (int i = 0; i < spectrum.Frequencies.Length; i++)
+                //{
+                //    spectrum.Frequencies.Span[i] *= frequencyBinCorrection;
+                //}
 
                 UpdateNSDChart(spectrum.Frequencies, yArray);
                 var fileParseTimeSec = fileParseFinish.Subtract(fileParseStart).TotalSeconds;
