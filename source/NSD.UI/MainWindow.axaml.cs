@@ -84,13 +84,26 @@ namespace NSD.UI
                     "Seconds per sample" => dataRateTime,
                     _ => throw new ApplicationException("Data rate combobox value not handled")
                 };
-                var fftWidth = int.Parse((string)viewModel.SelectedFftWidthItem.Content);
-                var stackingFftWidth = int.Parse((string)viewModel.SelectedStackingFftWidthItem.Content);
-                if (stackingFftWidth >= fftWidth && viewModel.FftStacking)
+
+                switch ((string)viewModel.SelectedNsdAlgorithm.Content)
                 {
-                    viewModel.Status = "Error: Invalid minimum stacking FFT width";
-                    return;
+                    case "Logarithmic":
+                        break;
+                    case "Linear":
+                        break;
+                    case "Linear stacking":
+                        {
+                            var fftWidth = int.Parse((string)viewModel.SelectedLinearStackingLengthItem.Content);
+                            var stackingFftWidth = int.Parse((string)viewModel.SelectedLinearStackingMinLengthItem.Content);
+                            if (stackingFftWidth >= fftWidth)
+                            {
+                                viewModel.Status = "Error: Invalid minimum stacking FFT width";
+                                return;
+                            }
+                            break;
+                        }
                 }
+
                 if (!double.TryParse(viewModel.InputScaling, out double inputScaling))
                 {
                     viewModel.Status = "Error: Invalid input scaling value";
@@ -126,11 +139,33 @@ namespace NSD.UI
                     viewModel.Status = "Error: No CSV records found";
                     return;
                 }
-                if (fftWidth > records.Count)
+
+                switch ((string)viewModel.SelectedNsdAlgorithm.Content)
                 {
-                    viewModel.Status = "Error: FFT width is longer than input data";
-                    return;
+                    case "Logarithmic":
+                        break;
+                    case "Linear":
+                        {
+                            var fftWidth = int.Parse((string)viewModel.SelectedLinearLengthItem.Content);
+                            if (fftWidth > records.Count)
+                            {
+                                viewModel.Status = "Error: FFT width is longer than input data";
+                                return;
+                            }
+                            break;
+                        }
+                    case "Linear stacking":
+                        {
+                            var fftWidth = int.Parse((string)viewModel.SelectedLinearStackingLengthItem.Content);
+                            if (fftWidth > records.Count)
+                            {
+                                viewModel.Status = "Error: FFT width is longer than input data";
+                                return;
+                            }
+                            break;
+                        }
                 }
+
 
                 //records = Signals.WhiteNoise(100000, sampleRate, 1e-9).ToArray().ToList();
 
@@ -146,19 +181,30 @@ namespace NSD.UI
                 //double spectralValueCorrection = 1.0;
                 //double frequencyBinCorrection = Math.Sqrt(dataRateTimeSeconds / acquisitionTimeSeconds);
                 //double frequencyBinCorrection = 1.0;
-                if (viewModel.FftStacking)
+                switch ((string)viewModel.SelectedNsdAlgorithm.Content)
                 {
-                    var nsd = await Task.Factory.StartNew(() => NSD.StackedLinear(input: records.ToArray(), 1.0 / acquisitionTimeSeconds, maxWidth: fftWidth, minWidth: stackingFftWidth));
-                    //var nsd = await Task.Factory.StartNew(() => NSD.Log(input: records.ToArray(), 1.0 / acquisitionTimeSeconds, 0.0001, 10, 10, 50));
-                    spectrum = nsd;
-                }
-                else
-                {
-                    //var sine = Signals.OneVoltRmsTestSignal();
-                    //await Welch.StackedNSD_Async(input: records.ToArray(), sampleRate, inputScale: 1e-3, outputWidth: fftWidth);
-                    //var nsd = Welch.NSD_SingleSeries(input: sine, sampleRate, inputScale: 1, outputWidth: fftWidth);
-                    var nsd = await Task.Factory.StartNew(() => NSD.Linear(input: records.ToArray(), 1.0 / acquisitionTimeSeconds, outputWidth: fftWidth));
-                    spectrum = nsd;
+                    case "Logarithmic":
+                        {
+                            var minAverages = int.Parse(viewModel.LogNsdMinAverages);
+                            var nsd = await Task.Factory.StartNew(() => NSD.Log(input: records.ToArray(), 1.0 / acquisitionTimeSeconds, viewModel.XMin, viewModel.XMax, 10, minAverages));
+                            spectrum = nsd;
+                            break;
+                        }
+                    case "Linear":
+                        {
+                            var fftWidth = int.Parse((string)viewModel.SelectedLinearLengthItem.Content);
+                            var nsd = await Task.Factory.StartNew(() => NSD.Linear(input: records.ToArray(), 1.0 / acquisitionTimeSeconds, outputWidth: fftWidth));
+                            spectrum = nsd;
+                            break;
+                        }
+                    case "Linear stacking":
+                        {
+                            var fftMaxWidth = int.Parse((string)viewModel.SelectedLinearStackingLengthItem.Content);
+                            var fftMinWidth = int.Parse((string)viewModel.SelectedLinearStackingMinLengthItem.Content);
+                            var nsd = await Task.Factory.StartNew(() => NSD.StackedLinear(input: records.ToArray(), 1.0 / acquisitionTimeSeconds, maxWidth: fftMaxWidth, minWidth: fftMinWidth));
+                            spectrum = nsd;
+                            break;
+                        }
                 }
                 DateTimeOffset nsdComputeFinish = DateTimeOffset.UtcNow;
                 Memory<double> yArray;

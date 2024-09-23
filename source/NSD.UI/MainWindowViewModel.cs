@@ -2,6 +2,7 @@
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
 
@@ -24,12 +25,46 @@ namespace NSD.UI
         [ObservableProperty] bool sgFilterChecked = false;
         [ObservableProperty] IBrush statusBackground = Brushes.WhiteSmoke;
         [ObservableProperty] string inputScaling = "1.0";
+        [ObservableProperty] string logNsdMinAverages = "20";
+        [ObservableProperty] string logNsdPointsDecade = "10";
+        
         public ComboBoxItem? SelectedAcquisitionTimebaseItem { get; set; }
         public ComboBoxItem? SelectedDataRateUnitItem { get; set; }
-        public ComboBoxItem? SelectedFftWidthItem { get; set; }
-        public ComboBoxItem? SelectedStackingFftWidthItem { get; set; }
+
+        private ComboBoxItem? selectedNsdAlgorithm;
+        public ComboBoxItem? SelectedNsdAlgorithm
+        {
+            get => selectedNsdAlgorithm; set
+            {
+                selectedNsdAlgorithm = value;
+                switch((string)selectedNsdAlgorithm.Content)
+                {
+                    case "Logarithmic":
+                        AlgorithmLog = true;
+                        AlgorithmLin = false;
+                        AlgorithmLinStack = false;
+                        break;
+                    case "Linear":
+                        AlgorithmLog = false;
+                        AlgorithmLin = true;
+                        AlgorithmLinStack = false;
+                        break;
+                    case "Linear stacking":
+                        AlgorithmLog = false;
+                        AlgorithmLin = false;
+                        AlgorithmLinStack = true;
+                        break;
+                }
+            }
+        }
+        public ComboBoxItem? SelectedLinearLengthItem { get; set; }
+        public ComboBoxItem? SelectedLinearStackingLengthItem { get; set; }
+        public ComboBoxItem? SelectedLinearStackingMinLengthItem { get; set; }
+        [ObservableProperty] bool algorithmLog = true;          // Controls visibility of sub-stack panel
+        [ObservableProperty] bool algorithmLin = false;         // Controls visibility of sub-stack panel
+        [ObservableProperty] bool algorithmLinStack = false;    // Controls visibility of sub-stack panel
+
         public ComboBoxItem? SelectedFileFormatItem { get; set; }
-        public bool FftStacking { get; set; } = false;
         public double XMin { get; set; } = 0.01;
         public double XMax { get; set; } = 10;
         public double YMin { get; set; } = 0.1;
@@ -39,6 +74,7 @@ namespace NSD.UI
         [ObservableProperty] int csvColumnIndex = 0;
 
         private Settings settings;
+
 
         public MainWindowViewModel(Settings settings)
         {
@@ -62,7 +98,7 @@ namespace NSD.UI
 
         partial void OnStatusChanged(string value)
         {
-            if(value.Contains("Error"))
+            if (value.Contains("Error"))
             {
                 StatusBackground = Brushes.Red;
             }

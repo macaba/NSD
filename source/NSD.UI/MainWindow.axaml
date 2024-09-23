@@ -33,6 +33,7 @@
 							<RowDefinition Height="Auto"/>
 							<RowDefinition Height="Auto"/>
 							<RowDefinition Height="Auto"/>
+							<RowDefinition Height="Auto"/>
 						</Grid.RowDefinitions>
 						<Grid.ColumnDefinitions>
 							<ColumnDefinition Width="Auto"/>
@@ -55,8 +56,8 @@
 						
 						<Label Grid.Row="3" Grid.Column="0" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="0,3,0,3">Acquisition time</Label>
 						<StackPanel Orientation="Horizontal" Grid.Row="3" Grid.Column="1" Margin="0,3,0,3">
-							<TextBox Watermark="Acquisition time..." Text="{Binding AcquisitionTime}" IsEnabled="{Binding Enabled}" MinWidth="100"/>
-							<ComboBox x:Name="cbTime" SelectedIndex="0" SelectedItem="{Binding SelectedAcquisitionTimebaseItem, Mode=OneWayToSource}" IsEnabled="{Binding Enabled}" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" MinWidth="100">
+							<TextBox Watermark="Acquisition time..." Text="{Binding AcquisitionTime}" IsEnabled="{Binding Enabled}" MinWidth="120"/>
+							<ComboBox x:Name="cbTime" SelectedIndex="0" SelectedItem="{Binding SelectedAcquisitionTimebaseItem, Mode=OneWayToSource}" IsEnabled="{Binding Enabled}" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" MinWidth="100" Margin="2,0,0,0">
 								<ComboBoxItem>NPLC (50Hz)</ComboBoxItem>
 								<ComboBoxItem>NPLC (60Hz)</ComboBoxItem>
 								<ComboBoxItem>s</ComboBoxItem>
@@ -67,57 +68,90 @@
 							<Button Content="--&gt;" VerticalAlignment="Stretch" Click="btnTimeToRate_Click" Margin="12,0,0,0"></Button>
 							<Button Content="&lt;--" VerticalAlignment="Stretch" Click="btnRateToTime_Click" Margin="2,0,0,0"></Button>
 							<Label VerticalAlignment="Center" Margin="6,0,0,0">Data rate</Label>
-							<TextBox Watermark="Data rate..." Text="{Binding DataRate}" IsEnabled="{Binding Enabled}" MinWidth="100"></TextBox>
-							<ComboBox x:Name="cbRate" SelectedIndex="0" SelectedItem="{Binding SelectedDataRateUnitItem, Mode=OneWayToSource}" IsEnabled="{Binding Enabled}" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" MinWidth="100">
+							<TextBox Watermark="Data rate..." Text="{Binding DataRate}" IsEnabled="{Binding Enabled}" MinWidth="120"></TextBox>
+							<ComboBox x:Name="cbRate" SelectedIndex="0" SelectedItem="{Binding SelectedDataRateUnitItem, Mode=OneWayToSource}" IsEnabled="{Binding Enabled}" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" MinWidth="100" Margin="2,0,0,0">
 								<ComboBoxItem>Samples per second</ComboBoxItem>
 								<ComboBoxItem>Seconds per sample</ComboBoxItem>
 							</ComboBox>
 						</StackPanel>
 
-						<Label Grid.Row="4" Grid.Column="0" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="0,3,0,3">FFT width</Label>
-						<StackPanel Orientation="Horizontal" Grid.Row="4" Grid.Column="1"  Margin="0,3,0,3">
-							<ComboBox SelectedIndex="9" SelectedItem="{Binding SelectedFftWidthItem, Mode=OneWayToSource}" IsEnabled="{Binding Enabled}" HorizontalAlignment="Stretch">
-								<ComboBoxItem>64</ComboBoxItem>
-								<ComboBoxItem>128</ComboBoxItem>
-								<ComboBoxItem>256</ComboBoxItem>
-								<ComboBoxItem>512</ComboBoxItem>
-								<ComboBoxItem>1024</ComboBoxItem>
-								<ComboBoxItem>2048</ComboBoxItem>
-								<ComboBoxItem>4096</ComboBoxItem>
-								<ComboBoxItem>8192</ComboBoxItem>
-								<ComboBoxItem>16384</ComboBoxItem>
-								<ComboBoxItem>32768</ComboBoxItem>
-								<ComboBoxItem>65536</ComboBoxItem>
-								<ComboBoxItem>131072</ComboBoxItem>
-								<ComboBoxItem>262144</ComboBoxItem>
-								<ComboBoxItem>524288</ComboBoxItem>
+						<Label Grid.Row="4" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="0,3,0,3">Input scaling</Label>
+						<TextBox Grid.Row="4" Grid.Column="1" Margin="0,3,0,3" Watermark="Input scaling..." Text="{Binding InputScaling}" IsEnabled="{Binding Enabled}" MinWidth="120" HorizontalAlignment="Left"></TextBox>
+						
+						<Label Grid.Row="5" Grid.Column="0" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="0,3,0,3">NSD algorithm</Label>
+						<StackPanel Orientation="Horizontal" Grid.Row="5" Grid.Column="1"  Margin="0,3,0,3">
+							<ComboBox SelectedIndex="0" SelectedItem="{Binding SelectedNsdAlgorithm, Mode=OneWayToSource}" IsEnabled="{Binding Enabled}" HorizontalAlignment="Stretch" VerticalAlignment="Center" MinWidth="120">
+								<ComboBoxItem>Logarithmic</ComboBoxItem>
+								<ComboBoxItem>Linear</ComboBoxItem>
+								<ComboBoxItem>Linear stacking</ComboBoxItem>
 							</ComboBox>
-							<Label VerticalAlignment="Center" Margin="6,0,0,0">Input scaling</Label>
-							<TextBox Watermark="Input scaling..." Text="{Binding InputScaling}" IsEnabled="{Binding Enabled}" MinWidth="100"></TextBox>
 
-							<CheckBox Margin="6,0,0,0" Content="Stacking" IsChecked="{Binding FftStacking}" IsEnabled="{Binding Enabled}"></CheckBox>
-							<Label VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="6,3,0,3">Minimum stacking FFT width:</Label>
-							<ComboBox SelectedIndex="0" SelectedItem="{Binding SelectedStackingFftWidthItem, Mode=OneWayToSource}" IsEnabled="{Binding Enabled}" HorizontalAlignment="Stretch">
-								<ComboBoxItem>64</ComboBoxItem>
-								<ComboBoxItem>128</ComboBoxItem>
-								<ComboBoxItem>256</ComboBoxItem>
-								<ComboBoxItem>512</ComboBoxItem>
-								<ComboBoxItem>1024</ComboBoxItem>
-								<ComboBoxItem>2048</ComboBoxItem>
-								<ComboBoxItem>4096</ComboBoxItem>
-								<ComboBoxItem>8192</ComboBoxItem>
-								<ComboBoxItem>16384</ComboBoxItem>
-								<ComboBoxItem>32768</ComboBoxItem>
-								<ComboBoxItem>65536</ComboBoxItem>
-								<ComboBoxItem>131072</ComboBoxItem>
-								<ComboBoxItem>262144</ComboBoxItem>
-							</ComboBox>
+							<StackPanel x:Name="spLogarithmic" Orientation="Horizontal" Margin="6,0,0,0" IsVisible="{Binding AlgorithmLog}">
+								<Label VerticalAlignment="Stretch" VerticalContentAlignment="Center">Minimum averages</Label>
+								<TextBox Text="{Binding LogNsdMinAverages}" IsEnabled="{Binding Enabled}" MinWidth="30" Width="100" HorizontalAlignment="Left"></TextBox>
+								<Label VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="6,0,0,0">Points per decade</Label>
+								<TextBox Text="{Binding LogNsdPointsDecade}" IsEnabled="{Binding Enabled}" MinWidth="30" Width="100" HorizontalAlignment="Left"></TextBox>
+							</StackPanel>
+							<StackPanel x:Name="spLinear" Orientation="Horizontal" Margin="6,0,0,0" IsVisible="{Binding AlgorithmLin}">
+								<Label VerticalAlignment="Stretch" VerticalContentAlignment="Center">FFT length</Label>
+								<ComboBox SelectedIndex="9" SelectedItem="{Binding SelectedLinearLengthItem, Mode=OneWayToSource}" IsEnabled="{Binding Enabled}" HorizontalAlignment="Stretch">
+									<ComboBoxItem>64</ComboBoxItem>
+									<ComboBoxItem>128</ComboBoxItem>
+									<ComboBoxItem>256</ComboBoxItem>
+									<ComboBoxItem>512</ComboBoxItem>
+									<ComboBoxItem>1024</ComboBoxItem>
+									<ComboBoxItem>2048</ComboBoxItem>
+									<ComboBoxItem>4096</ComboBoxItem>
+									<ComboBoxItem>8192</ComboBoxItem>
+									<ComboBoxItem>16384</ComboBoxItem>
+									<ComboBoxItem>32768</ComboBoxItem>
+									<ComboBoxItem>65536</ComboBoxItem>
+									<ComboBoxItem>131072</ComboBoxItem>
+									<ComboBoxItem>262144</ComboBoxItem>
+									<ComboBoxItem>524288</ComboBoxItem>
+								</ComboBox>
+							</StackPanel>
+							<StackPanel x:Name="spLinearStacking" Orientation="Horizontal" Margin="6,0,0,0" IsVisible="{Binding AlgorithmLinStack}">
+								<Label VerticalAlignment="Stretch" VerticalContentAlignment="Center">Maximum FFT length</Label>
+								<ComboBox SelectedIndex="10" SelectedItem="{Binding SelectedLinearStackingLengthItem, Mode=OneWayToSource}" IsEnabled="{Binding Enabled}" HorizontalAlignment="Stretch">
+									<ComboBoxItem>64</ComboBoxItem>
+									<ComboBoxItem>128</ComboBoxItem>
+									<ComboBoxItem>256</ComboBoxItem>
+									<ComboBoxItem>512</ComboBoxItem>
+									<ComboBoxItem>1024</ComboBoxItem>
+									<ComboBoxItem>2048</ComboBoxItem>
+									<ComboBoxItem>4096</ComboBoxItem>
+									<ComboBoxItem>8192</ComboBoxItem>
+									<ComboBoxItem>16384</ComboBoxItem>
+									<ComboBoxItem>32768</ComboBoxItem>
+									<ComboBoxItem>65536</ComboBoxItem>
+									<ComboBoxItem>131072</ComboBoxItem>
+									<ComboBoxItem>262144</ComboBoxItem>
+									<ComboBoxItem>524288</ComboBoxItem>
+								</ComboBox>
+								<Label VerticalAlignment="Stretch" VerticalContentAlignment="Center">Minimum FFT length</Label>
+								<ComboBox SelectedIndex="2" SelectedItem="{Binding SelectedLinearStackingMinLengthItem, Mode=OneWayToSource}" IsEnabled="{Binding Enabled}" HorizontalAlignment="Stretch">
+									<ComboBoxItem>64</ComboBoxItem>
+									<ComboBoxItem>128</ComboBoxItem>
+									<ComboBoxItem>256</ComboBoxItem>
+									<ComboBoxItem>512</ComboBoxItem>
+									<ComboBoxItem>1024</ComboBoxItem>
+									<ComboBoxItem>2048</ComboBoxItem>
+									<ComboBoxItem>4096</ComboBoxItem>
+									<ComboBoxItem>8192</ComboBoxItem>
+									<ComboBoxItem>16384</ComboBoxItem>
+									<ComboBoxItem>32768</ComboBoxItem>
+									<ComboBoxItem>65536</ComboBoxItem>
+									<ComboBoxItem>131072</ComboBoxItem>
+									<ComboBoxItem>262144</ComboBoxItem>
+								</ComboBox>
+							</StackPanel>
 						</StackPanel>
 
 
 
-						<Button Grid.Row="5" Grid.ColumnSpan="3" Margin="0,6,0,6" Content="Run" HorizontalAlignment="Stretch" Click="btnRun_Click" IsEnabled="{Binding Enabled}"/>
-						<StackPanel Grid.Row="6" Grid.ColumnSpan="2" Orientation="Horizontal">
+						<Button Grid.Row="6" Grid.ColumnSpan="3" Margin="0,6,0,6" Content="Run" HorizontalAlignment="Stretch" Click="btnRun_Click" IsEnabled="{Binding Enabled}"/>
+						<StackPanel Grid.Row="7" Grid.ColumnSpan="2" Orientation="Horizontal">
 							<Label VerticalAlignment="Center">X Min</Label>
 							<NumericUpDown Value="{Binding XMin}" AllowSpin="false" ShowButtonSpinner="false" Width="100" IsEnabled="{Binding Enabled}" Padding="0"></NumericUpDown>
 							<Label VerticalAlignment="Center">X Max</Label>
@@ -128,7 +162,7 @@
 							<NumericUpDown Value="{Binding YMax}" AllowSpin="false" ShowButtonSpinner="false" Width="100" IsEnabled="{Binding Enabled}" Padding="0"></NumericUpDown>
 							<CheckBox Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Margin="6,0,0,0" Content="Savitzky-Golay filter" IsChecked="{Binding SgFilterChecked}" IsEnabled="{Binding Enabled}"></CheckBox>
 						</StackPanel>
-						<Button Grid.Row="8" Grid.ColumnSpan="3" Margin="0,6,0,6" Content="Set axis" HorizontalAlignment="Stretch" Click="btnSetAxis_Click" IsEnabled="{Binding Enabled}"></Button>
+						<Button Grid.Row="9" Grid.ColumnSpan="3" Margin="0,6,0,6" Content="Set axis" HorizontalAlignment="Stretch" Click="btnSetAxis_Click" IsEnabled="{Binding Enabled}"></Button>
 
 					</Grid>
 					<ScottPlot:AvaPlot Grid.Row="1"  Name="WpfPlot1"/>
