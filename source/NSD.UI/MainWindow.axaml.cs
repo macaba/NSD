@@ -148,8 +148,8 @@ namespace NSD.UI
                 //double frequencyBinCorrection = 1.0;
                 if (viewModel.FftStacking)
                 {
-                    //var nsd = await Welch.StackedNSD_Async(input: records.ToArray(), 1.0 / acquisitionTimeSeconds, ignoreBins, outputWidth: fftWidth, minWidth: stackingFftWidth);
-                    var nsd = await Task.Factory.StartNew(() => Welch.StackedNSD(input: records.ToArray(), 1.0 / acquisitionTimeSeconds, maxWidth: fftWidth, minWidth: stackingFftWidth));
+                    var nsd = await Task.Factory.StartNew(() => NSD.StackedLinear(input: records.ToArray(), 1.0 / acquisitionTimeSeconds, maxWidth: fftWidth, minWidth: stackingFftWidth));
+                    //var nsd = await Task.Factory.StartNew(() => NSD.Log(input: records.ToArray(), 1.0 / acquisitionTimeSeconds, 0.0001, 10, 10, 50));
                     spectrum = nsd;
                 }
                 else
@@ -157,7 +157,7 @@ namespace NSD.UI
                     //var sine = Signals.OneVoltRmsTestSignal();
                     //await Welch.StackedNSD_Async(input: records.ToArray(), sampleRate, inputScale: 1e-3, outputWidth: fftWidth);
                     //var nsd = Welch.NSD_SingleSeries(input: sine, sampleRate, inputScale: 1, outputWidth: fftWidth);
-                    var nsd = await Task.Factory.StartNew(() => Welch.NSD(input: records.ToArray(), 1.0 / acquisitionTimeSeconds, outputWidth: fftWidth));
+                    var nsd = await Task.Factory.StartNew(() => NSD.Linear(input: records.ToArray(), 1.0 / acquisitionTimeSeconds, outputWidth: fftWidth));
                     spectrum = nsd;
                 }
                 DateTimeOffset nsdComputeFinish = DateTimeOffset.UtcNow;
