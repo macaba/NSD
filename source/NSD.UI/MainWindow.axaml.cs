@@ -309,11 +309,11 @@ namespace NSD.UI
             WpfPlot1.Plot.Axes.Bottom.TickGenerator = xTickGenerator;
             WpfPlot1.Plot.Axes.Left.TickGenerator = yTickGenerator;
             WpfPlot1.Plot.Axes.Hairline(true);
-            WpfPlot1.Plot.XLabel("Frequency (Hz)", 18);
-            WpfPlot1.Plot.YLabel("Noise (nV/rHz)", 18);
+            WpfPlot1.Plot.XLabel("Frequency (Hz)", 14);
+            WpfPlot1.Plot.YLabel("Noise (nV/rHz)", 14);
             WpfPlot1.Plot.Axes.Bottom.Label.Bold = false;
             WpfPlot1.Plot.Axes.Left.Label.Bold = false;
-            WpfPlot1.Plot.Title("NSD estimation", size: 18);
+            WpfPlot1.Plot.Title("NSD estimation", size: 14);
             WpfPlot1.Plot.Axes.Title.Label.Bold = false;
             WpfPlot1.Plot.Grid.MinorLineWidth = 1;
             WpfPlot1.Plot.Grid.MinorLineColor = ScottPlot.Color.FromARGB(0x14000000);

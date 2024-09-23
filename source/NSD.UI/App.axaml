@@ -2,6 +2,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="NSD.UI.App">
     <Application.Styles>
-        <FluentTheme />
+        <SimpleTheme />
     </Application.Styles>
 </Application>

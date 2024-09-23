@@ -15,9 +15,7 @@
 			<RowDefinition Height="*"/>
 			<RowDefinition Height="Auto"/>
 		</Grid.RowDefinitions>
-		<TabControl Grid.Row="0" Margin="0,0,0,6">
-			<TabItem Header="Process">
-				<Grid>
+				<Grid Margin="6">
 					<Grid.RowDefinitions>
 						<RowDefinition Height="Auto"/>
 						<RowDefinition Height="*"/>
@@ -42,21 +40,21 @@
 							<ColumnDefinition Width="Auto"/>
 						</Grid.ColumnDefinitions>
 
-						<Label Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">Working folder</Label>
-						<TextBox Grid.Row="0" Grid.Column="1" Watermark="Working folder..." IsEnabled="{Binding Enabled}" Text="{Binding ProcessWorkingFolder}"/>
-						<Button Grid.Row="0" Grid.Column="2" Margin="6,0,0,0" Content="Search" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Click="BtnSearch_Click"></Button>
+						<Label Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="0,3,0,3">Working folder</Label>
+						<TextBox Grid.Row="0" Grid.Column="1" Watermark="Working folder..." IsEnabled="{Binding Enabled}" Text="{Binding ProcessWorkingFolder}" Margin="0,3,0,3"/>
+						<Button Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="6,3,0,3" Content="Search" Click="BtnSearch_Click"></Button>
 
-						<Label Grid.Row="1" Grid.Column="0" VerticalAlignment="Center">Input CSV file</Label>
-						<ComboBox Grid.Row="1" Grid.Column="1"  HorizontalAlignment="Stretch" ItemsSource="{Binding InputFileNames}" SelectedIndex="{Binding SelectedInputFileIndex}" IsEnabled="{Binding Enabled}"  VerticalContentAlignment="Center"></ComboBox>
+						<Label Grid.Row="1" Grid.Column="0" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="0,3,0,3">Input CSV file</Label>
+						<ComboBox Grid.Row="1" Grid.Column="1"  HorizontalAlignment="Stretch" ItemsSource="{Binding InputFileNames}" SelectedIndex="{Binding SelectedInputFileIndex}" IsEnabled="{Binding Enabled}"  VerticalContentAlignment="Center" Margin="0,3,0,3"></ComboBox>
 
-						<StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="1">
+						<StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="1" Margin="0,3,0,3">
 							<CheckBox x:Name="cbHeader" VerticalAlignment="Center" IsChecked="{Binding CsvHasHeader}">CSV has header?</CheckBox>
 							<Label VerticalAlignment="Center" Margin="10 0 0 0">CSV column index [0-index]:</Label>
-							<NumericUpDown x:Name="intColumnIndex" Value="{Binding CsvColumnIndex}" Increment="1"  />
+							<NumericUpDown x:Name="intColumnIndex" Value="{Binding CsvColumnIndex}" Increment="1" Padding="0" VerticalAlignment="Stretch" VerticalContentAlignment="Center" />
 						</StackPanel>
 						
-						<Label Grid.Row="3" Grid.Column="0" VerticalAlignment="Center">Acquisition time</Label>
-						<StackPanel Orientation="Horizontal" Grid.Row="3" Grid.Column="1">
+						<Label Grid.Row="3" Grid.Column="0" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="0,3,0,3">Acquisition time</Label>
+						<StackPanel Orientation="Horizontal" Grid.Row="3" Grid.Column="1" Margin="0,3,0,3">
 							<TextBox Watermark="Acquisition time..." Text="{Binding AcquisitionTime}" IsEnabled="{Binding Enabled}" MinWidth="100"/>
 							<ComboBox x:Name="cbTime" SelectedIndex="0" SelectedItem="{Binding SelectedAcquisitionTimebaseItem, Mode=OneWayToSource}" IsEnabled="{Binding Enabled}" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" MinWidth="100">
 								<ComboBoxItem>NPLC (50Hz)</ComboBoxItem>
@@ -66,9 +64,9 @@
 								<ComboBoxItem>μs</ComboBoxItem>
 								<ComboBoxItem>ns</ComboBoxItem>
 							</ComboBox>
-							<Button Content="--&gt;" VerticalAlignment="Stretch" Click="btnTimeToRate_Click"></Button>
-							<Button Content="&lt;--" VerticalAlignment="Stretch" Click="btnRateToTime_Click"></Button>
-							<Label VerticalAlignment="Center">Data rate</Label>
+							<Button Content="--&gt;" VerticalAlignment="Stretch" Click="btnTimeToRate_Click" Margin="12,0,0,0"></Button>
+							<Button Content="&lt;--" VerticalAlignment="Stretch" Click="btnRateToTime_Click" Margin="2,0,0,0"></Button>
+							<Label VerticalAlignment="Center" Margin="6,0,0,0">Data rate</Label>
 							<TextBox Watermark="Data rate..." Text="{Binding DataRate}" IsEnabled="{Binding Enabled}" MinWidth="100"></TextBox>
 							<ComboBox x:Name="cbRate" SelectedIndex="0" SelectedItem="{Binding SelectedDataRateUnitItem, Mode=OneWayToSource}" IsEnabled="{Binding Enabled}" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" MinWidth="100">
 								<ComboBoxItem>Samples per second</ComboBoxItem>
@@ -76,9 +74,8 @@
 							</ComboBox>
 						</StackPanel>
 
-
-						<Label Grid.Row="4" Grid.Column="0" VerticalAlignment="Center">FFT width</Label>
-						<StackPanel Orientation="Horizontal" Grid.Row="4" Grid.Column="1">
+						<Label Grid.Row="4" Grid.Column="0" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="0,3,0,3">FFT width</Label>
+						<StackPanel Orientation="Horizontal" Grid.Row="4" Grid.Column="1"  Margin="0,3,0,3">
 							<ComboBox SelectedIndex="9" SelectedItem="{Binding SelectedFftWidthItem, Mode=OneWayToSource}" IsEnabled="{Binding Enabled}" HorizontalAlignment="Stretch">
 								<ComboBoxItem>64</ComboBoxItem>
 								<ComboBoxItem>128</ComboBoxItem>
@@ -95,11 +92,11 @@
 								<ComboBoxItem>262144</ComboBoxItem>
 								<ComboBoxItem>524288</ComboBoxItem>
 							</ComboBox>
-							<Label VerticalAlignment="Center">Input scaling</Label>
+							<Label VerticalAlignment="Center" Margin="6,0,0,0">Input scaling</Label>
 							<TextBox Watermark="Input scaling..." Text="{Binding InputScaling}" IsEnabled="{Binding Enabled}" MinWidth="100"></TextBox>
 
 							<CheckBox Margin="6,0,0,0" Content="Stacking" IsChecked="{Binding FftStacking}" IsEnabled="{Binding Enabled}"></CheckBox>
-							<Label VerticalAlignment="Center">Minimum stacking FFT width:</Label>
+							<Label VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="6,3,0,3">Minimum stacking FFT width:</Label>
 							<ComboBox SelectedIndex="0" SelectedItem="{Binding SelectedStackingFftWidthItem, Mode=OneWayToSource}" IsEnabled="{Binding Enabled}" HorizontalAlignment="Stretch">
 								<ComboBoxItem>64</ComboBoxItem>
 								<ComboBoxItem>128</ComboBoxItem>
@@ -122,13 +119,13 @@
 						<Button Grid.Row="5" Grid.ColumnSpan="3" Margin="0,6,0,6" Content="Run" HorizontalAlignment="Stretch" Click="btnRun_Click" IsEnabled="{Binding Enabled}"/>
 						<StackPanel Grid.Row="6" Grid.ColumnSpan="2" Orientation="Horizontal">
 							<Label VerticalAlignment="Center">X Min</Label>
-							<NumericUpDown Value="{Binding XMin}" AllowSpin="false" ShowButtonSpinner="false" Width="100" IsEnabled="{Binding Enabled}"></NumericUpDown>
+							<NumericUpDown Value="{Binding XMin}" AllowSpin="false" ShowButtonSpinner="false" Width="100" IsEnabled="{Binding Enabled}" Padding="0"></NumericUpDown>
 							<Label VerticalAlignment="Center">X Max</Label>
-							<NumericUpDown Value="{Binding XMax}" AllowSpin="false" ShowButtonSpinner="false" Width="100" IsEnabled="{Binding Enabled}"></NumericUpDown>
+							<NumericUpDown Value="{Binding XMax}" AllowSpin="false" ShowButtonSpinner="false" Width="100" IsEnabled="{Binding Enabled}" Padding="0"></NumericUpDown>
 							<Label VerticalAlignment="Center">Y Min</Label>
-							<NumericUpDown Value="{Binding YMin}" AllowSpin="false" ShowButtonSpinner="false" Width="100" IsEnabled="{Binding Enabled}"></NumericUpDown>
+							<NumericUpDown Value="{Binding YMin}" AllowSpin="false" ShowButtonSpinner="false" Width="100" IsEnabled="{Binding Enabled}" Padding="0"></NumericUpDown>
 							<Label VerticalAlignment="Center">Y Max</Label>
-							<NumericUpDown Value="{Binding YMax}" AllowSpin="false" ShowButtonSpinner="false" Width="100" IsEnabled="{Binding Enabled}"></NumericUpDown>
+							<NumericUpDown Value="{Binding YMax}" AllowSpin="false" ShowButtonSpinner="false" Width="100" IsEnabled="{Binding Enabled}" Padding="0"></NumericUpDown>
 							<CheckBox Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Margin="6,0,0,0" Content="Savitzky-Golay filter" IsChecked="{Binding SgFilterChecked}" IsEnabled="{Binding Enabled}"></CheckBox>
 						</StackPanel>
 						<Button Grid.Row="8" Grid.ColumnSpan="3" Margin="0,6,0,6" Content="Set axis" HorizontalAlignment="Stretch" Click="btnSetAxis_Click" IsEnabled="{Binding Enabled}"></Button>
@@ -146,61 +143,6 @@
 						<Button Grid.Row="0" Grid.Column="2" Margin="6,0,0,0" Content="Generate" IsEnabled="{Binding Enabled}" Click="BtnGenerate_Click"></Button>
 					</Grid>
 				</Grid>
-			</TabItem>
-			<!--<TabItem Header="Collate">
-				<Grid>
-					<Grid>
-						<Grid.RowDefinitions>
-							<RowDefinition Height="Auto"/>
-							<RowDefinition Height="*"/>
-							<RowDefinition Height="Auto"/>
-						</Grid.RowDefinitions>
-						<Grid Grid.Row="0">
-							<Grid.RowDefinitions>
-								<RowDefinition Height="Auto"/>
-								<RowDefinition Height="Auto"/>
-								<RowDefinition Height="Auto"/>
-								<RowDefinition Height="Auto"/>
-								<RowDefinition Height="Auto"/>
-								<RowDefinition Height="Auto"/>
-								<RowDefinition Height="Auto"/>
-								<RowDefinition Height="Auto"/>
-								<RowDefinition Height="Auto"/>
-								<RowDefinition Height="Auto"/>
-							</Grid.RowDefinitions>
-							<Grid.ColumnDefinitions>
-								<ColumnDefinition Width="Auto"/>
-								<ColumnDefinition Width="*"/>
-								<ColumnDefinition Width="Auto"/>
-							</Grid.ColumnDefinitions>
-
-							<Label Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">Working folder</Label>
-							<TextBox Grid.Row="0" Grid.Column="1" Watermark="Working folder..." IsEnabled="{Binding Enabled}" Text="{Binding CollateWorkingFolder}"/>
-							<Button Grid.Row="0" Grid.Column="2" Content="Search" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Click="BtnCollateSearch_Click"></Button>
-
-							<Label Grid.Row="1" Grid.Column="0" VerticalAlignment="Center">Input NSD file</Label>
-							<ComboBox Grid.Row="1" Grid.Column="1"  HorizontalAlignment="Stretch" Items="{Binding InputNsdFileNames}" SelectedIndex="{Binding SelectedInputNsdFileIndex}" IsEnabled="{Binding Enabled}"></ComboBox>
-							<Button Grid.Row="0" Grid.Column="2" Content="Add" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Click="BtnCollateAdd_Click"></Button>
-
-							<StackPanel Grid.Row="5" Grid.ColumnSpan="2" Orientation="Horizontal">
-								<Label VerticalAlignment="Center">X Min</Label>
-								<NumericUpDown Value="{Binding XMin}" AllowSpin="false" ShowButtonSpinner="false" Width="100" IsEnabled="{Binding Enabled}"></NumericUpDown>
-								<Label VerticalAlignment="Center">X Max</Label>
-								<NumericUpDown Value="{Binding XMax}" AllowSpin="false" ShowButtonSpinner="false" Width="100" IsEnabled="{Binding Enabled}"></NumericUpDown>
-							</StackPanel>
-							<StackPanel Grid.Row="6" Grid.ColumnSpan="2" Orientation="Horizontal">
-								<Label VerticalAlignment="Center">Y Min</Label>
-								<NumericUpDown Value="{Binding YMin}" AllowSpin="false" ShowButtonSpinner="false" Width="100" IsEnabled="{Binding Enabled}"></NumericUpDown>
-								<Label VerticalAlignment="Center">Y Max</Label>
-								<NumericUpDown Value="{Binding YMax}" AllowSpin="false" ShowButtonSpinner="false" Width="100" IsEnabled="{Binding Enabled}"></NumericUpDown>
-							</StackPanel>
-							<Button Grid.Row="7" Grid.ColumnSpan="3" Content="Set axis" HorizontalAlignment="Stretch" Click="btnSetAxis_Click" IsEnabled="{Binding Enabled}"></Button>
-						</Grid>
-						<ScottPlot:AvaPlot Grid.Row="1"  Name="WpfPlot2"/>
-					</Grid>
-				</Grid>
-			</TabItem>-->
-		</TabControl>
 		<Grid Grid.Row="1">
 			<TextBlock Name="tbStatus" Padding="6" HorizontalAlignment="Stretch" Text="{Binding Status}" Background="{Binding StatusBackground}"></TextBlock>
 		</Grid>
