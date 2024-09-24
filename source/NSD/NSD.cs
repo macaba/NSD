@@ -93,9 +93,9 @@ namespace NSD
             if (sampleRateHz <= 0)
                 throw new ArgumentException("sampleRateHz must be positive");
             if (freqMin < sampleRateHz / input.Length)
-                throw new ArgumentException("freqMin is too low");
+                freqMin = sampleRateHz / input.Length;
             if (freqMax > sampleRateHz / 2)
-                throw new ArgumentException("freqMax is too high");
+                freqMax = sampleRateHz / 2;
 
             Windows.FTNI(1, out double optimumOverlap, out double NENBW);
             int firstUsableBinForWindow = (int)Math.Ceiling(NENBW);

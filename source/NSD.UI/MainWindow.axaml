@@ -49,9 +49,9 @@
 						<ComboBox Grid.Row="1" Grid.Column="1"  HorizontalAlignment="Stretch" ItemsSource="{Binding InputFileNames}" SelectedIndex="{Binding SelectedInputFileIndex}" IsEnabled="{Binding Enabled}"  VerticalContentAlignment="Center" Margin="0,3,0,3"></ComboBox>
 
 						<StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="1" Margin="0,3,0,3">
-							<CheckBox x:Name="cbHeader" VerticalAlignment="Center" IsChecked="{Binding CsvHasHeader}">CSV has header?</CheckBox>
+							<CheckBox x:Name="cbHeader" VerticalAlignment="Center" IsChecked="{Binding CsvHasHeader}" IsEnabled="{Binding Enabled}">CSV has header?</CheckBox>
 							<Label VerticalAlignment="Center" Margin="10 0 0 0">CSV column index [0-index]:</Label>
-							<NumericUpDown x:Name="intColumnIndex" Value="{Binding CsvColumnIndex}" Increment="1" Padding="0" VerticalAlignment="Stretch" VerticalContentAlignment="Center" />
+							<NumericUpDown x:Name="intColumnIndex" Value="{Binding CsvColumnIndex}" Increment="1" Padding="0" VerticalAlignment="Stretch" VerticalContentAlignment="Center" IsEnabled="{Binding Enabled}"/>
 						</StackPanel>
 						
 						<Label Grid.Row="3" Grid.Column="0" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="0,3,0,3">Acquisition time</Label>

@@ -186,7 +186,8 @@ namespace NSD.UI
                     case "Logarithmic":
                         {
                             var minAverages = int.Parse(viewModel.LogNsdMinAverages);
-                            var nsd = await Task.Factory.StartNew(() => NSD.Log(input: records.ToArray(), 1.0 / acquisitionTimeSeconds, viewModel.XMin, viewModel.XMax, 10, minAverages));
+                            var pointsPerDecade = int.Parse(viewModel.LogNsdPointsDecade);
+                            var nsd = await Task.Factory.StartNew(() => NSD.Log(input: records.ToArray(), 1.0 / acquisitionTimeSeconds, viewModel.XMin, viewModel.XMax, pointsPerDecade, minAverages));
                             spectrum = nsd;
                             break;
                         }
@@ -326,6 +327,7 @@ namespace NSD.UI
             double[] logXs = x.ToArray().Select(pt => Math.Log10(pt)).ToArray();
             double[] logYs = y.ToArray().Select(pt => Math.Log10(pt * 1E9)).ToArray();
             var scatter = WpfPlot1.Plot.Add.ScatterLine(logXs, logYs);
+            //var scatter = WpfPlot1.Plot.Add.Scatter(logXs, logYs);
             CommonChartConfig();
         }
 

@@ -25,8 +25,8 @@ namespace NSD.UI
         [ObservableProperty] bool sgFilterChecked = false;
         [ObservableProperty] IBrush statusBackground = Brushes.WhiteSmoke;
         [ObservableProperty] string inputScaling = "1.0";
-        [ObservableProperty] string logNsdMinAverages = "20";
-        [ObservableProperty] string logNsdPointsDecade = "10";
+        [ObservableProperty] string logNsdMinAverages = "30";
+        [ObservableProperty] string logNsdPointsDecade = "20";
         
         public ComboBoxItem? SelectedAcquisitionTimebaseItem { get; set; }
         public ComboBoxItem? SelectedDataRateUnitItem { get; set; }
