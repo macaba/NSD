@@ -5,6 +5,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,10 +15,6 @@
     <PackageReference Include="FftSharp" Version="2.1.0" />
     <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
     <PackageReference Include="NWaves" Version="0.9.6" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\NSD\NSD.csproj" />
   </ItemGroup>
 
 </Project>
