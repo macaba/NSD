@@ -4,39 +4,33 @@ namespace NSD
 {
     public class GoertzelFilter
     {
-        public double coeff;
-        public double sine;
-        public double cosine;
+        private readonly double coeff;
+        private readonly double sine;
+        private readonly double cosine;
 
         public GoertzelFilter(double filterFreq, double sampleFreq)
         {
-            double w = 2 * Math.PI * (filterFreq / sampleFreq);
-            double wr, wi;
-
-            wr = Math.Cos(w);
-            wi = Math.Sin(w);
-            coeff = 2 * wr;
-            cosine = wr;
-            sine = wi;
+            double w = 2.0 * Math.PI * (filterFreq / sampleFreq);
+            cosine = Math.Cos(w);
+            sine = Math.Sin(w);
+            coeff = 2.0 * cosine;
         }
 
         public Complex Process(Span<double> samples)
         {
-            double sprev = 0.0;
-            double sprev2 = 0.0;
-            double s, imag, real;
-            int n;
+            double Q0 = 0.0;
+            double Q1 = 0.0;
+            double Q2 = 0.0;
 
-            for (n = 0; n < samples.Length; n++)
+            for (int n = 0; n < samples.Length; n++)
             {
-                s = samples[n] + coeff * sprev - sprev2;
-                sprev2 = sprev;
-                sprev = s;
+                Q0 = coeff * Q1 - Q2 + samples[n];
+                Q2 = Q1;
+                Q1 = Q0;
             }
 
-            real = sprev * cosine - sprev2;
-            imag = -sprev * sine;
-
+            var real = Q1 * cosine - Q2;
+            var imag = -Q1 * sine;
             return new Complex(real, imag);
         }
     }

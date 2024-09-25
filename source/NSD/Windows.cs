@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace NSD
+﻿namespace NSD
 {
     public static class Windows
     {
@@ -13,11 +11,13 @@ namespace NSD
             optimumOverlap = 0.756;
             NENBW = 3.8112;
             Memory<double> window = new double[width];
+            var windowSpan = window.Span;
+            double angleIncrement = 2.0 * Math.PI / width;
             for (int i = 0; i < width; i++)
             {
-                double z = (2.0 * Math.PI * i) / width;
+                double z = angleIncrement * i;
                 double wj = 1 - (1.9383379 * Math.Cos(z)) + (1.3045202 * Math.Cos(2 * z)) - (0.4028270 * Math.Cos(3 * z)) + (0.0350665 * Math.Cos(4 * z));
-                window.Span[i] = wj;
+                windowSpan[i] = wj;
             }
             return window;
         }
@@ -31,11 +31,13 @@ namespace NSD
             optimumOverlap = 0.76;
             NENBW = 3.8832;
             Memory<double> window = new double[width];
+            var windowSpan = window.Span;
+            double angleIncrement = 2.0 * Math.PI / width;
             for (int i = 0; i < width; i++)
             {
-                double z = (2.0 * Math.PI * i) / width;
+                double z = angleIncrement * i;
                 double wj = 1 - (1.942604 * Math.Cos(z)) + (1.340318 * Math.Cos(2 * z)) - (0.440811 * Math.Cos(3 * z)) + (0.043097 * Math.Cos(4 * z));
-                window.Span[i] = wj;
+                windowSpan[i] = wj;
             }
          
             return window;
@@ -50,11 +52,13 @@ namespace NSD
             optimumOverlap = 0.656;
             NENBW = 2.9656;
             Memory<double> window = new double[width];
+            var windowSpan = window.Span;
+            double angleIncrement = 2.0 * Math.PI / width;
             for (int i = 0; i < width; i++)
             {
-                double z = (2.0 * Math.PI * i) / width;
+                double z = angleIncrement * i;
                 double wj = 0.2810639 - (0.5208972 * Math.Cos(z)) + (0.1980399 * Math.Cos(2 * z));
-                window.Span[i] = wj;
+                windowSpan[i] = wj;
             }
             return window;
         }
