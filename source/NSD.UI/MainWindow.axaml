@@ -65,11 +65,11 @@
 								<ComboBoxItem>μs</ComboBoxItem>
 								<ComboBoxItem>ns</ComboBoxItem>
 							</ComboBox>
-							<Button Content="--&gt;" VerticalAlignment="Stretch" Click="btnTimeToRate_Click" Margin="12,0,0,0"></Button>
-							<Button Content="&lt;--" VerticalAlignment="Stretch" Click="btnRateToTime_Click" Margin="2,0,0,0"></Button>
-							<Label VerticalAlignment="Center" Margin="6,0,0,0">Data rate</Label>
-							<TextBox Watermark="Data rate..." Text="{Binding DataRate}" IsEnabled="{Binding Enabled}" MinWidth="120"></TextBox>
-							<ComboBox x:Name="cbRate" SelectedIndex="0" SelectedItem="{Binding SelectedDataRateUnitItem, Mode=OneWayToSource}" IsEnabled="{Binding Enabled}" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" MinWidth="100" Margin="2,0,0,0">
+							<Button IsVisible="false" Content="--&gt;" VerticalAlignment="Stretch" Click="btnTimeToRate_Click" Margin="12,0,0,0"></Button>
+							<Button IsVisible="false" Content="&lt;--" VerticalAlignment="Stretch" Click="btnRateToTime_Click" Margin="2,0,0,0"></Button>
+							<Label IsVisible="false" VerticalAlignment="Center" Margin="6,0,0,0">Data rate</Label>
+							<TextBox IsVisible="false" Watermark="Data rate..." Text="{Binding DataRate}" IsEnabled="{Binding Enabled}" MinWidth="120"></TextBox>
+							<ComboBox IsVisible="false" x:Name="cbRate" SelectedIndex="0" SelectedItem="{Binding SelectedDataRateUnitItem, Mode=OneWayToSource}" IsEnabled="{Binding Enabled}" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" MinWidth="100" Margin="2,0,0,0">
 								<ComboBoxItem>Samples per second</ComboBoxItem>
 								<ComboBoxItem>Seconds per sample</ComboBoxItem>
 							</ComboBox>
@@ -87,10 +87,12 @@
 							</ComboBox>
 
 							<StackPanel x:Name="spLogarithmic" Orientation="Horizontal" Margin="6,0,0,0" IsVisible="{Binding AlgorithmLog}">
-								<Label VerticalAlignment="Stretch" VerticalContentAlignment="Center">Minimum averages</Label>
-								<TextBox Text="{Binding LogNsdMinAverages}" IsEnabled="{Binding Enabled}" MinWidth="30" Width="100" HorizontalAlignment="Left"></TextBox>
 								<Label VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="6,0,0,0">Points per decade</Label>
-								<TextBox Text="{Binding LogNsdPointsDecade}" IsEnabled="{Binding Enabled}" MinWidth="30" Width="100" HorizontalAlignment="Left"></TextBox>
+								<TextBox Text="{Binding LogNsdPointsDecade}" IsEnabled="{Binding Enabled}" MinWidth="30" Width="50" HorizontalAlignment="Left"></TextBox>
+								<Label VerticalAlignment="Stretch" VerticalContentAlignment="Center">Minimum averages</Label>
+								<TextBox Text="{Binding LogNsdMinAverages}" IsEnabled="{Binding Enabled}" MinWidth="30" Width="50" HorizontalAlignment="Left"></TextBox>
+								<Label VerticalAlignment="Stretch" VerticalContentAlignment="Center">Minimum spectrum length</Label>
+								<TextBox Text="{Binding LogNsdMinLength}" IsEnabled="{Binding Enabled}" MinWidth="30" Width="50" HorizontalAlignment="Left"></TextBox>
 							</StackPanel>
 							<StackPanel x:Name="spLinear" Orientation="Horizontal" Margin="6,0,0,0" IsVisible="{Binding AlgorithmLin}">
 								<Label VerticalAlignment="Stretch" VerticalContentAlignment="Center">FFT length</Label>

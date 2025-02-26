@@ -22,7 +22,7 @@ namespace NSD.UI
         {
             InitializeComponent();
             settings = Settings.Load();
-            viewModel = new(settings);
+            viewModel = new(settings, this);
             DataContext = viewModel;
             InitNsdChart();
         }
@@ -73,17 +73,17 @@ namespace NSD.UI
                     "ns" => acquisitionTime / 1e9,
                     _ => throw new ApplicationException("Acquisition time combobox value not handled")
                 };
-                if (!double.TryParse(viewModel.DataRate, out double dataRateTime))
-                {
-                    viewModel.Status = "Error: Invalid data rate value";
-                    return;
-                }
-                double dataRateTimeSeconds = (string)viewModel.SelectedDataRateUnitItem.Content switch
-                {
-                    "Samples per second" => 1.0 / dataRateTime,
-                    "Seconds per sample" => dataRateTime,
-                    _ => throw new ApplicationException("Data rate combobox value not handled")
-                };
+                //if (!double.TryParse(viewModel.DataRate, out double dataRateTime))
+                //{
+                //    viewModel.Status = "Error: Invalid data rate value";
+                //    return;
+                //}
+                //double dataRateTimeSeconds = (string)viewModel.SelectedDataRateUnitItem.Content switch
+                //{
+                //    "Samples per second" => 1.0 / dataRateTime,
+                //    "Seconds per sample" => dataRateTime,
+                //    _ => throw new ApplicationException("Data rate combobox value not handled")
+                //};
 
                 switch ((string)viewModel.SelectedNsdAlgorithm.Content)
                 {
@@ -185,9 +185,17 @@ namespace NSD.UI
                 {
                     case "Logarithmic":
                         {
-                            var minAverages = int.Parse(viewModel.LogNsdMinAverages);
                             var pointsPerDecade = int.Parse(viewModel.LogNsdPointsDecade);
-                            var nsd = await Task.Factory.StartNew(() => NSD.Log(input: records.ToArray(), 1.0 / acquisitionTimeSeconds, viewModel.XMin, viewModel.XMax, pointsPerDecade, minAverages));
+                            var minAverages = int.Parse(viewModel.LogNsdMinAverages);
+                            var minLength = int.Parse(viewModel.LogNsdMinLength);
+                            var nsd = await Task.Factory.StartNew(() => NSD.Log(
+                                input: records.ToArray(),
+                                sampleRateHz: 1.0 / acquisitionTimeSeconds,
+                                freqMin: viewModel.XMin,
+                                freqMax: viewModel.XMax, 
+                                pointsPerDecade, 
+                                minAverages, 
+                                minLength));
                             spectrum = nsd;
                             break;
                         }

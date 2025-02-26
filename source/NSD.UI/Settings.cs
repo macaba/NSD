@@ -25,7 +25,7 @@ namespace NSD.UI
             {
                 ProcessWorkingFolder = Directory.GetCurrentDirectory(),
                 AcquisitionTime = "1",
-                AcquisitionTimeUnit = "NPLC",
+                AcquisitionTimeUnit = "NPLC (50Hz)",
                 DataRate = "50",
                 DataRateUnit = "Samples per second"
             };

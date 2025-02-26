@@ -1,5 +1,4 @@
 ﻿using System.Data;
-using System.Diagnostics;
 
 namespace NSD
 {
@@ -84,52 +83,93 @@ namespace NSD
             return new Spectrum() { Frequencies = outputFrequencies.ToArray(), Values = outputValues.ToArray(), Averages = averages, Stacking = widths.Count };
         }
 
-        public static Spectrum Log(Memory<double> input, double sampleRateHz, double freqMin, double freqMax, int pointsPerDecade, int minimumAverages)
+        private record WelchGoertzelJob(double Frequency, int SpectrumLength, int CalculatedAverages);
+        public static Spectrum Log(Memory<double> input, double sampleRateHz, double freqMin, double freqMax, int pointsPerDecade, int minimumAverages, int minimumLength)
         {
             if (freqMax <= freqMin)
                 throw new ArgumentException("freqMax must be greater than freqMin");
-            if (pointsPerDecade <= 0 || minimumAverages <= 0)
-                throw new ArgumentException("pointsPerDecade, and minimumAverages must be positive");
+            if (pointsPerDecade <= 0 || minimumAverages <= 0 || minimumLength <= 0)
+                throw new ArgumentException("pointsPerDecade, minimumAverages, and minimumLength must be positive");
             if (sampleRateHz <= 0)
                 throw new ArgumentException("sampleRateHz must be positive");
-            if (freqMin < sampleRateHz / input.Length)
-                freqMin = sampleRateHz / input.Length;
-            if (freqMax > sampleRateHz / 2)
-                freqMax = sampleRateHz / 2;
 
             Windows.FTNI(1, out double optimumOverlap, out double NENBW);
             int firstUsableBinForWindow = (int)Math.Ceiling(NENBW);
-            double decades = Math.Log10(freqMax / freqMin);
+
+            // To do:
+            // For the purposes of the frequencies calculation, round freqMax/freqMin to nearest major decade line.
+            // This ensures consistency of X-coordinate over various view widths.
+            double decadeMin = RoundToDecade(freqMin, RoundingMode.Down);
+            double decadeMax = RoundToDecade(freqMax, RoundingMode.Up);
+            double decades = Math.Log10(decadeMax / decadeMin);
             int desiredNumberOfPoints = (int)(decades * pointsPerDecade) + 1;       // + 1 to get points on the decade grid lines
 
-            double g = Math.Log(freqMax) - Math.Log(freqMin);
-            double[] frequencies = Enumerable.Range(0, desiredNumberOfPoints).Select(j => freqMin * Math.Exp(j * g / (desiredNumberOfPoints - 1))).ToArray();
+            double g = Math.Log(decadeMax) - Math.Log(decadeMin);
+            double[] frequencies = Enumerable.Range(0, desiredNumberOfPoints).Select(j => decadeMin * Math.Exp(j * g / (desiredNumberOfPoints - 1))).ToArray();
             double[] spectrumResolution = frequencies.Select(freq => freq / firstUsableBinForWindow).ToArray();
-            // spectrumResolution contains the 'desired resolutions' for each frequency bin, given the rule that we want the first usuable bin in the flat-top'd data.
+            // spectrumResolution contains the 'desired resolutions' for each frequency bin, respecting the rule that we want the first usuable bin for the given window.
 
-            int[] spectrumLength = spectrumResolution.Select(val => (int)Math.Round(sampleRateHz / val)).ToArray();     // Segment lengths
-            //double[] actualSpectrumResolution = spectrumLength.Select(val => sampleRateHz / val).ToArray();             // Actual resolution
-            //double[] binNumber = frequencies.Select((val, index) => val / actualSpectrumResolution[index]).ToArray();   // Fourier tranform bin number (maybe validate that it doesn't deviate beyond +/-10%?)
-            int[] estimatedAverages = spectrumLength.Select(val => (int)((input.Length - val) / (val * (1.0 - optimumOverlap)))).ToArray();
+            int[] spectrumLengths = spectrumResolution.Select(resolution => (int)Math.Round(sampleRateHz / resolution)).ToArray();
+
+            // Create a job list of valid points to calculate
+            double nyquistMax = sampleRateHz / 2;
+            List<WelchGoertzelJob> jobs = [];
+            for (int i = 0; i < frequencies.Length; i++)
+            {
+                if (frequencies[i] > nyquistMax)
+                    continue;
+                if (TryCalculateAverages(input.Length, spectrumLengths[i], optimumOverlap, out var averages))
+                {
+                    if (averages >= minimumAverages)
+                    {
+                        // Increase spectrum length until minimumLength is met, or averages drops below minimumAverages.
+                        // This increases the spectral resolution at the top end of the chart, allowing 50Hz spikes (& similar) to be more visible
+                        var spectrumLength = spectrumLengths[i];
+                        bool continueLoop = true;
+                        while (continueLoop)
+                        {
+                            if (spectrumLength < minimumLength && averages > minimumAverages)
+                            {
+                                var success = TryCalculateAverages(input.Length, spectrumLength * 2, optimumOverlap, out var newAverages);
+                                if (!success)
+                                    break;
+                                if (averages > minimumAverages)
+                                {
+                                    spectrumLength *= 2;
+                                    averages = newAverages;
+                                    continueLoop = true;
+                                }
+                                else
+                                {
+                                    continueLoop = false;
+                                    break;
+                                }
+
+                            }
+                            else
+                            {
+                                continueLoop = false;
+                            }
+                        }
+                        jobs.Add(new WelchGoertzelJob(frequencies[i], spectrumLength, averages));
+                    }
+                }
+            }
 
             var spectrum = new Dictionary<double, double>();
-            var indices = Enumerable.Range(0, desiredNumberOfPoints).ToArray();
-            for(int i = 0; i < frequencies.Length; i++)
+            for (int i = 0; i < jobs.Count; i++)
             {
-                spectrum[frequencies[i]] = double.NaN;
+                spectrum[jobs[i].Frequency] = double.NaN;
             }
             object averageLock = new();
             int cumulativeAverage = 0;
-            //for (int i = 0; i < desiredNumberOfPoints; i++)
-            //foreach(var i in indices)
-            Parallel.ForEach(indices, new ParallelOptions { MaxDegreeOfParallelism = 8 }, i =>
+            //foreach(var job in jobs)
+            Parallel.ForEach(jobs, new ParallelOptions { MaxDegreeOfParallelism = 8 }, job =>
             {
-                if (estimatedAverages[i] < minimumAverages)
-                    return;
-                var result = RunWelchGoertzel(input, spectrumLength[i], frequencies[i], sampleRateHz, out var actualAverages);
-                if (estimatedAverages[i] != actualAverages)
-                    Debug.WriteLine($"{estimatedAverages[i]} {actualAverages}");
-                spectrum[frequencies[i]] = result;
+                var result = RunWelchGoertzel(input, job.SpectrumLength, job.Frequency, sampleRateHz, out var actualAverages);
+                if (job.CalculatedAverages != actualAverages)
+                    throw new Exception("Actual averages does not match calculated averages");
+                spectrum[job.Frequency] = result;
                 lock (averageLock)
                 {
                     cumulativeAverage += actualAverages;
@@ -284,6 +324,39 @@ namespace NSD
                 sumSquared += Math.Pow(window[i], 2);
             }
             return sumSquared;
+        }
+
+        enum RoundingMode { Nearest, Up, Down }
+        private static double RoundToDecade(double value, RoundingMode mode)
+        {
+            if (value <= 0)
+                throw new ArgumentOutOfRangeException(nameof(value), "Value must be positive.");
+
+            double log10 = Math.Log10(value);
+            double exponent = mode switch
+            {
+                RoundingMode.Nearest => Math.Round(log10),
+                RoundingMode.Up => Math.Ceiling(log10),
+                RoundingMode.Down => Math.Floor(log10),
+                _ => throw new ArgumentOutOfRangeException(nameof(mode), "Invalid rounding mode.")
+            };
+
+            return Math.Pow(10, exponent);
+        }
+
+        private static bool TryCalculateAverages(int dataLength, int spectrumLength, double optimumOverlap, out int averages)
+        {
+            averages = 0;
+            int overlap = (int)(spectrumLength * (1.0 - optimumOverlap));
+            if (overlap < 1)
+                return false;
+            int endIndex = spectrumLength;
+            while (endIndex < dataLength)
+            {
+                averages++;
+                endIndex += overlap;
+            }
+            return true;
         }
     }
 }

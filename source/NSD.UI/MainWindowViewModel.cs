@@ -2,7 +2,6 @@
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
 
@@ -25,9 +24,10 @@ namespace NSD.UI
         [ObservableProperty] bool sgFilterChecked = false;
         [ObservableProperty] IBrush statusBackground = Brushes.WhiteSmoke;
         [ObservableProperty] string inputScaling = "1.0";
-        [ObservableProperty] string logNsdMinAverages = "30";
         [ObservableProperty] string logNsdPointsDecade = "20";
-        
+        [ObservableProperty] string logNsdMinAverages = "1";
+        [ObservableProperty] string logNsdMinLength = "256";      
+
         public ComboBoxItem? SelectedAcquisitionTimebaseItem { get; set; }
         public ComboBoxItem? SelectedDataRateUnitItem { get; set; }
 
@@ -37,7 +37,7 @@ namespace NSD.UI
             get => selectedNsdAlgorithm; set
             {
                 selectedNsdAlgorithm = value;
-                switch((string)selectedNsdAlgorithm.Content)
+                switch ((string)selectedNsdAlgorithm.Content)
                 {
                     case "Logarithmic":
                         AlgorithmLog = true;
@@ -65,8 +65,8 @@ namespace NSD.UI
         [ObservableProperty] bool algorithmLinStack = false;    // Controls visibility of sub-stack panel
 
         public ComboBoxItem? SelectedFileFormatItem { get; set; }
-        public double XMin { get; set; } = 0.01;
-        public double XMax { get; set; } = 10;
+        public double XMin { get; set; } = 0.001;
+        public double XMax { get; set; } = 100;
         public double YMin { get; set; } = 0.1;
         public double YMax { get; set; } = 100;
         public string WindowTitle { get { Version version = Assembly.GetExecutingAssembly().GetName().Version; return "NSD v" + version.Major + "." + version.Minor; } }
@@ -76,12 +76,35 @@ namespace NSD.UI
         private Settings settings;
 
 
-        public MainWindowViewModel(Settings settings)
+        public MainWindowViewModel(Settings settings, MainWindow window)
         {
             this.settings = settings;
             processWorkingFolder = settings.ProcessWorkingFolder;
             acquisitionTime = settings.AcquisitionTime;
-            dataRate = settings.DataRate;
+
+            switch (settings.AcquisitionTimeUnit)
+            {
+                case "NPLC (50Hz)":
+                    window.cbTime.SelectedIndex = 0;
+                    break;
+                case "NPLC (60Hz)":
+                    window.cbTime.SelectedIndex = 1;
+                    break;
+                case "s":
+                    window.cbTime.SelectedIndex = 2;
+                    break;
+                case "ms":
+                    window.cbTime.SelectedIndex = 3;
+                    break;
+                case "μs":
+                    window.cbTime.SelectedIndex = 4;
+                    break;
+                case "ns":
+                    window.cbTime.SelectedIndex = 5;
+                    break;
+            }
+            //dataRate = settings.DataRate;
+            //SelectedDataRateUnitItem = settings.DataRateUnit;
         }
 
         partial void OnProcessWorkingFolderChanged(string? value)
