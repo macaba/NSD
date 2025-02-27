@@ -54,7 +54,7 @@
 							<NumericUpDown x:Name="intColumnIndex" Value="{Binding CsvColumnIndex}" Increment="1" Padding="0" VerticalAlignment="Stretch" VerticalContentAlignment="Center" IsEnabled="{Binding Enabled}"/>
 						</StackPanel>
 						
-						<Label Grid.Row="3" Grid.Column="0" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="0,3,0,3">Acquisition time</Label>
+						<Label Grid.Row="3" Grid.Column="0" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="0,3,0,3">Acquisition</Label>
 						<StackPanel Orientation="Horizontal" Grid.Row="3" Grid.Column="1" Margin="0,3,0,3">
 							<TextBox Watermark="Acquisition time..." Text="{Binding AcquisitionTime}" IsEnabled="{Binding Enabled}" MinWidth="120"/>
 							<ComboBox x:Name="cbTime" SelectedIndex="0" SelectedItem="{Binding SelectedAcquisitionTimebaseItem, Mode=OneWayToSource}" IsEnabled="{Binding Enabled}" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" MinWidth="100" Margin="2,0,0,0">
@@ -64,14 +64,9 @@
 								<ComboBoxItem>ms</ComboBoxItem>
 								<ComboBoxItem>μs</ComboBoxItem>
 								<ComboBoxItem>ns</ComboBoxItem>
-							</ComboBox>
-							<Button IsVisible="false" Content="--&gt;" VerticalAlignment="Stretch" Click="btnTimeToRate_Click" Margin="12,0,0,0"></Button>
-							<Button IsVisible="false" Content="&lt;--" VerticalAlignment="Stretch" Click="btnRateToTime_Click" Margin="2,0,0,0"></Button>
-							<Label IsVisible="false" VerticalAlignment="Center" Margin="6,0,0,0">Data rate</Label>
-							<TextBox IsVisible="false" Watermark="Data rate..." Text="{Binding DataRate}" IsEnabled="{Binding Enabled}" MinWidth="120"></TextBox>
-							<ComboBox IsVisible="false" x:Name="cbRate" SelectedIndex="0" SelectedItem="{Binding SelectedDataRateUnitItem, Mode=OneWayToSource}" IsEnabled="{Binding Enabled}" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" MinWidth="100" Margin="2,0,0,0">
-								<ComboBoxItem>Samples per second</ComboBoxItem>
-								<ComboBoxItem>Seconds per sample</ComboBoxItem>
+								<ComboBoxItem>SPS</ComboBoxItem>
+								<ComboBoxItem>kSPS</ComboBoxItem>
+								<ComboBoxItem>MSPS</ComboBoxItem>
 							</ComboBox>
 						</StackPanel>
 

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace NSD.UI
@@ -71,6 +72,9 @@ namespace NSD.UI
                     "ms" => acquisitionTime / 1e3,
                     "μs" => acquisitionTime / 1e6,
                     "ns" => acquisitionTime / 1e9,
+                    "SPS" => 1.0 / acquisitionTime,
+                    "kSPS" => 1.0 / (acquisitionTime * 1000.0),
+                    "MSPS" => 1.0 / (acquisitionTime * 1000000.0),
                     _ => throw new ApplicationException("Acquisition time combobox value not handled")
                 };
                 //if (!double.TryParse(viewModel.DataRate, out double dataRateTime))
@@ -189,14 +193,14 @@ namespace NSD.UI
                             var pointsPerDecadeScaling = double.Parse(viewModel.LogNsdPointsDecadeScaling);
                             var minAverages = int.Parse(viewModel.LogNsdMinAverages);
                             //var minLength = int.Parse(viewModel.LogNsdMinLength);
-                            var minLength = int.Parse((string)viewModel.SelectedLogNsdMinLength.Content); 
+                            var minLength = int.Parse((string)viewModel.SelectedLogNsdMinLength.Content);
                             var nsd = await Task.Factory.StartNew(() => NSD.Log(
                                 input: records.ToArray(),
                                 sampleRateHz: 1.0 / acquisitionTimeSeconds,
                                 freqMin: viewModel.XMin,
-                                freqMax: viewModel.XMax, 
-                                pointsPerDecade, 
-                                minAverages, 
+                                freqMax: viewModel.XMax,
+                                pointsPerDecade,
+                                minAverages,
                                 minLength,
                                 pointsPerDecadeScaling));
                             spectrum = nsd;
@@ -251,45 +255,6 @@ namespace NSD.UI
             {
                 viewModel.Enabled = true;
             }
-        }
-
-        public void btnRateToTime_Click(object sender, RoutedEventArgs e)
-        {
-            if (!double.TryParse(viewModel.DataRate, out double dataRateTime))
-            {
-                viewModel.Status = "Error: Invalid data rate value";
-                return;
-            }
-            double dataRateTimeSeconds = (string)viewModel.SelectedDataRateUnitItem.Content switch
-            {
-                "Samples per second" => 1.0 / dataRateTime,
-                "Seconds per sample" => dataRateTime,
-                _ => throw new ApplicationException("Data rate combobox value not handled")
-            };
-
-            viewModel.AcquisitionTime = dataRateTimeSeconds.ToString();
-            cbTime.SelectedIndex = 2;
-        }
-
-        public void btnTimeToRate_Click(object sender, RoutedEventArgs e)
-        {
-            if (!double.TryParse(viewModel.AcquisitionTime, out double acquisitionTime))
-            {
-                viewModel.Status = "Error: Invalid acquisition time value";
-                return;
-            }
-            double acquisitionTimeSeconds = (string)(viewModel.SelectedAcquisitionTimebaseItem).Content switch
-            {
-                "NPLC (50Hz)" => acquisitionTime * (1.0 / 50.0),
-                "NPLC (60Hz)" => acquisitionTime * (1.0 / 60.0),
-                "s" => acquisitionTime,
-                "ms" => acquisitionTime / 1e3,
-                "μs" => acquisitionTime / 1e6,
-                "ns" => acquisitionTime / 1e9,
-                _ => throw new ApplicationException("Acquisition time combobox value not handled")
-            };
-            viewModel.DataRate = (1.0 / acquisitionTimeSeconds).ToString();
-            cbRate.SelectedIndex = 0;
         }
 
         public class NsdSample

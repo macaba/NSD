@@ -13,7 +13,6 @@ namespace NSD.UI
         // Loaded from settings file
         [ObservableProperty] string? processWorkingFolder;
         [ObservableProperty] string? acquisitionTime;
-        [ObservableProperty] string? dataRate;
 
         [ObservableProperty] string status = "Status: Idle";
         [ObservableProperty] bool enabled = true;
@@ -28,10 +27,9 @@ namespace NSD.UI
         [ObservableProperty] string logNsdPointsDecade = "5";
         [ObservableProperty] string logNsdPointsDecadeScaling = "2.0";
         [ObservableProperty] string logNsdMinAverages = "1";
-        [ObservableProperty] string logNsdMinLength = "128";      
+        [ObservableProperty] string logNsdMinLength = "128";
 
         public ComboBoxItem? SelectedAcquisitionTimebaseItem { get; set; }
-        public ComboBoxItem? SelectedDataRateUnitItem { get; set; }
 
         private ComboBoxItem? selectedNsdAlgorithm;
         public ComboBoxItem? SelectedNsdAlgorithm
@@ -85,29 +83,19 @@ namespace NSD.UI
             processWorkingFolder = settings.ProcessWorkingFolder;
             acquisitionTime = settings.AcquisitionTime;
 
-            switch (settings.AcquisitionTimeUnit)
+            window.cbTime.SelectedIndex = settings.AcquisitionTimeUnit switch
             {
-                case "NPLC (50Hz)":
-                    window.cbTime.SelectedIndex = 0;
-                    break;
-                case "NPLC (60Hz)":
-                    window.cbTime.SelectedIndex = 1;
-                    break;
-                case "s":
-                    window.cbTime.SelectedIndex = 2;
-                    break;
-                case "ms":
-                    window.cbTime.SelectedIndex = 3;
-                    break;
-                case "μs":
-                    window.cbTime.SelectedIndex = 4;
-                    break;
-                case "ns":
-                    window.cbTime.SelectedIndex = 5;
-                    break;
-            }
-            //dataRate = settings.DataRate;
-            //SelectedDataRateUnitItem = settings.DataRateUnit;
+                "NPLC (50Hz)" => 0,
+                "NPLC (60Hz)" => 1,
+                "s" => 2,
+                "ms" => 3,
+                "μs" => 4,
+                "ns" => 5,
+                "SPS" => 6,
+                "kSPS" => 7,
+                "MSPS" => 8,
+                _ => throw new Exception("Invalid AcquisitionTimeUnit")
+            };
         }
 
         partial void OnProcessWorkingFolderChanged(string? value)
