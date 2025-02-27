@@ -186,8 +186,10 @@ namespace NSD.UI
                     case "Logarithmic":
                         {
                             var pointsPerDecade = int.Parse(viewModel.LogNsdPointsDecade);
+                            var pointsPerDecadeScaling = double.Parse(viewModel.LogNsdPointsDecadeScaling);
                             var minAverages = int.Parse(viewModel.LogNsdMinAverages);
-                            var minLength = int.Parse(viewModel.LogNsdMinLength);
+                            //var minLength = int.Parse(viewModel.LogNsdMinLength);
+                            var minLength = int.Parse((string)viewModel.SelectedLogNsdMinLength.Content); 
                             var nsd = await Task.Factory.StartNew(() => NSD.Log(
                                 input: records.ToArray(),
                                 sampleRateHz: 1.0 / acquisitionTimeSeconds,
@@ -195,7 +197,8 @@ namespace NSD.UI
                                 freqMax: viewModel.XMax, 
                                 pointsPerDecade, 
                                 minAverages, 
-                                minLength));
+                                minLength,
+                                pointsPerDecadeScaling));
                             spectrum = nsd;
                             break;
                         }
@@ -336,6 +339,12 @@ namespace NSD.UI
             double[] logYs = y.ToArray().Select(pt => Math.Log10(pt * 1E9)).ToArray();
             var scatter = WpfPlot1.Plot.Add.ScatterLine(logXs, logYs);
             //var scatter = WpfPlot1.Plot.Add.Scatter(logXs, logYs);
+            if (viewModel.MarkersChecked)
+            {
+                scatter.MarkerStyle.Shape = ScottPlot.MarkerShape.FilledCircle;
+                scatter.MarkerStyle.Size = 3;
+                scatter.MarkerStyle.IsVisible = true;
+            }
             CommonChartConfig();
         }
 

@@ -78,7 +78,7 @@
 						<Label Grid.Row="4" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="0,3,0,3">Input scaling</Label>
 						<TextBox Grid.Row="4" Grid.Column="1" Margin="0,3,0,3" Watermark="Input scaling..." Text="{Binding InputScaling}" IsEnabled="{Binding Enabled}" MinWidth="120" HorizontalAlignment="Left"></TextBox>
 						
-						<Label Grid.Row="5" Grid.Column="0" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="0,3,0,3">NSD algorithm</Label>
+						<Label Grid.Row="5" Grid.Column="0" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="0,3,0,3">NSD mode</Label>
 						<StackPanel Orientation="Horizontal" Grid.Row="5" Grid.Column="1"  Margin="0,3,0,3">
 							<ComboBox SelectedIndex="0" SelectedItem="{Binding SelectedNsdAlgorithm, Mode=OneWayToSource}" IsEnabled="{Binding Enabled}" HorizontalAlignment="Stretch" VerticalAlignment="Center" MinWidth="120">
 								<ComboBoxItem>Logarithmic</ComboBoxItem>
@@ -87,12 +87,26 @@
 							</ComboBox>
 
 							<StackPanel x:Name="spLogarithmic" Orientation="Horizontal" Margin="6,0,0,0" IsVisible="{Binding AlgorithmLog}">
-								<Label VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="6,0,0,0">Points per decade</Label>
-								<TextBox Text="{Binding LogNsdPointsDecade}" IsEnabled="{Binding Enabled}" MinWidth="30" Width="50" HorizontalAlignment="Left"></TextBox>
-								<Label VerticalAlignment="Stretch" VerticalContentAlignment="Center">Minimum averages</Label>
-								<TextBox Text="{Binding LogNsdMinAverages}" IsEnabled="{Binding Enabled}" MinWidth="30" Width="50" HorizontalAlignment="Left"></TextBox>
-								<Label VerticalAlignment="Stretch" VerticalContentAlignment="Center">Minimum spectrum length</Label>
-								<TextBox Text="{Binding LogNsdMinLength}" IsEnabled="{Binding Enabled}" MinWidth="30" Width="50" HorizontalAlignment="Left"></TextBox>
+								<Label VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="6,0,0,0">Points per decade (PPD)</Label>
+								<TextBox Text="{Binding LogNsdPointsDecade}" IsEnabled="{Binding Enabled}" MinWidth="30" Width="40" HorizontalAlignment="Left"></TextBox>
+								<Label VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="6,0,0,0">PPD scaling per decade</Label>
+								<TextBox Text="{Binding LogNsdPointsDecadeScaling}" IsEnabled="{Binding Enabled}" MinWidth="30" Width="40" HorizontalAlignment="Left"></TextBox>
+								<Label IsVisible="false" VerticalAlignment="Stretch" VerticalContentAlignment="Center">Min. averages</Label>
+								<TextBox IsVisible="false" Text="{Binding LogNsdMinAverages}" IsEnabled="{Binding Enabled}" MinWidth="30" Width="40" HorizontalAlignment="Left"></TextBox>
+								<Label VerticalAlignment="Stretch" VerticalContentAlignment="Center">Min. spectral length</Label>
+								<TextBox IsVisible="false" Text="{Binding LogNsdMinLength}" IsEnabled="{Binding Enabled}" MinWidth="30" Width="40" HorizontalAlignment="Left"></TextBox>
+								<ComboBox SelectedIndex="6" SelectedItem="{Binding SelectedLogNsdMinLength, Mode=OneWayToSource}" IsEnabled="{Binding Enabled}" HorizontalAlignment="Stretch">
+									<ComboBoxItem>2</ComboBoxItem>
+									<ComboBoxItem>4</ComboBoxItem>
+									<ComboBoxItem>8</ComboBoxItem>
+									<ComboBoxItem>16</ComboBoxItem>
+									<ComboBoxItem>32</ComboBoxItem>
+									<ComboBoxItem>64</ComboBoxItem>
+									<ComboBoxItem>128</ComboBoxItem>
+									<ComboBoxItem>256</ComboBoxItem>
+									<ComboBoxItem>512</ComboBoxItem>
+									<ComboBoxItem>1024</ComboBoxItem>
+								</ComboBox>
 							</StackPanel>
 							<StackPanel x:Name="spLinear" Orientation="Horizontal" Margin="6,0,0,0" IsVisible="{Binding AlgorithmLin}">
 								<Label VerticalAlignment="Stretch" VerticalContentAlignment="Center">FFT length</Label>
@@ -163,6 +177,7 @@
 							<Label VerticalAlignment="Center">Y Max</Label>
 							<NumericUpDown Value="{Binding YMax}" AllowSpin="false" ShowButtonSpinner="false" Width="100" IsEnabled="{Binding Enabled}" Padding="0"></NumericUpDown>
 							<CheckBox Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Margin="6,0,0,0" Content="Savitzky-Golay filter" IsChecked="{Binding SgFilterChecked}" IsEnabled="{Binding Enabled}"></CheckBox>
+							<CheckBox Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Margin="6,0,0,0" Content="Markers" IsChecked="{Binding MarkersChecked}" IsEnabled="{Binding Enabled}"></CheckBox>
 						</StackPanel>
 						<Button Grid.Row="9" Grid.ColumnSpan="3" Margin="0,6,0,6" Content="Set axis" HorizontalAlignment="Stretch" Click="btnSetAxis_Click" IsEnabled="{Binding Enabled}"></Button>
 

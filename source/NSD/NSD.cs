@@ -84,12 +84,12 @@ namespace NSD
         }
 
         private record WelchGoertzelJob(double Frequency, int SpectrumLength, int CalculatedAverages);
-        public static Spectrum Log(Memory<double> input, double sampleRateHz, double freqMin, double freqMax, int pointsPerDecade, int minimumAverages, int minimumLength)
+        public static Spectrum Log(Memory<double> input, double sampleRateHz, double freqMin, double freqMax, int pointsPerDecade, int minimumAverages, int minimumFourierLength, double pointsPerDecadeScaling)
         {
             if (freqMax <= freqMin)
                 throw new ArgumentException("freqMax must be greater than freqMin");
-            if (pointsPerDecade <= 0 || minimumAverages <= 0 || minimumLength <= 0)
-                throw new ArgumentException("pointsPerDecade, minimumAverages, and minimumLength must be positive");
+            if (pointsPerDecade <= 0 || minimumAverages <= 0 || minimumFourierLength <= 0)
+                throw new ArgumentException("pointsPerDecade, minimumAverages, and minimumFourierLength must be positive");
             if (sampleRateHz <= 0)
                 throw new ArgumentException("sampleRateHz must be positive");
 
@@ -104,10 +104,34 @@ namespace NSD
             double decades = Math.Log10(decadeMax / decadeMin);
             int desiredNumberOfPoints = (int)(decades * pointsPerDecade) + 1;       // + 1 to get points on the decade grid lines
 
+            int decadeMinExponent = (int)Math.Log10(decadeMin);
+            int decadeMaxExponent = (int)Math.Log10(decadeMax);
+            List<double> meh = [];
+            int pointsPerDecadeScaled = pointsPerDecade;
+            for (int decadeExponent = decadeMinExponent; decadeExponent < decadeMaxExponent; decadeExponent++)
+            {
+                double currentDecadeMin = Math.Pow(10, decadeExponent);
+                double currentDecadeMax = Math.Pow(10, decadeExponent + 1);
+                double multiple = Math.Log(currentDecadeMax) - Math.Log(currentDecadeMin);
+                var decadeFrequencies = Enumerable.Range(0, pointsPerDecadeScaled - 1).Select(i => currentDecadeMin * Math.Exp(i * multiple / (pointsPerDecadeScaled - 1))).ToArray();
+                meh.AddRange(decadeFrequencies);
+                pointsPerDecadeScaled = (int)(pointsPerDecadeScaled * pointsPerDecadeScaling);
+            }
+
             double g = Math.Log(decadeMax) - Math.Log(decadeMin);
-            double[] frequencies = Enumerable.Range(0, desiredNumberOfPoints).Select(j => decadeMin * Math.Exp(j * g / (desiredNumberOfPoints - 1))).ToArray();
+            //double[] frequencies = Enumerable.Range(0, desiredNumberOfPoints).Select(j => decadeMin * Math.Exp(j * g / (desiredNumberOfPoints - 1))).ToArray();
+            double[] frequencies = meh.ToArray();
             double[] spectrumResolution = frequencies.Select(freq => freq / firstUsableBinForWindow).ToArray();
             // spectrumResolution contains the 'desired resolutions' for each frequency bin, respecting the rule that we want the first usuable bin for the given window.
+
+            // Maybe we also want to scale the spectrum resolution by integer log values?
+            List<int> scalingValues = new List<int>();
+            for(int i = 0; i < desiredNumberOfPoints; i++)
+            {
+                var scale = (int)Math.Exp(i * (g/4.0) / (desiredNumberOfPoints - 1));
+                scalingValues.Add(scale);
+                //spectrumResolution[i] /= scale;
+            }
 
             int[] spectrumLengths = spectrumResolution.Select(resolution => (int)Math.Round(sampleRateHz / resolution)).ToArray();
 
@@ -128,7 +152,7 @@ namespace NSD
                         bool continueLoop = true;
                         while (continueLoop)
                         {
-                            if (spectrumLength < minimumLength && averages > minimumAverages)
+                            if (spectrumLength < minimumFourierLength && averages > minimumAverages)
                             {
                                 var success = TryCalculateAverages(input.Length, spectrumLength * 2, optimumOverlap, out var newAverages);
                                 if (!success)

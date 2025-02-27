@@ -22,11 +22,13 @@ namespace NSD.UI
         [ObservableProperty] int selectedInputFileIndex = -1;
         [ObservableProperty] string outputFileName = "output.nsd";
         [ObservableProperty] bool sgFilterChecked = false;
+        [ObservableProperty] bool markersChecked = false;
         [ObservableProperty] IBrush statusBackground = Brushes.WhiteSmoke;
         [ObservableProperty] string inputScaling = "1.0";
-        [ObservableProperty] string logNsdPointsDecade = "20";
+        [ObservableProperty] string logNsdPointsDecade = "5";
+        [ObservableProperty] string logNsdPointsDecadeScaling = "2.0";
         [ObservableProperty] string logNsdMinAverages = "1";
-        [ObservableProperty] string logNsdMinLength = "256";      
+        [ObservableProperty] string logNsdMinLength = "128";      
 
         public ComboBoxItem? SelectedAcquisitionTimebaseItem { get; set; }
         public ComboBoxItem? SelectedDataRateUnitItem { get; set; }
@@ -60,6 +62,7 @@ namespace NSD.UI
         public ComboBoxItem? SelectedLinearLengthItem { get; set; }
         public ComboBoxItem? SelectedLinearStackingLengthItem { get; set; }
         public ComboBoxItem? SelectedLinearStackingMinLengthItem { get; set; }
+        public ComboBoxItem? SelectedLogNsdMinLength { get; set; }
         [ObservableProperty] bool algorithmLog = true;          // Controls visibility of sub-stack panel
         [ObservableProperty] bool algorithmLin = false;         // Controls visibility of sub-stack panel
         [ObservableProperty] bool algorithmLinStack = false;    // Controls visibility of sub-stack panel
