@@ -94,7 +94,8 @@ namespace NSD.UI
                 "SPS" => 6,
                 "kSPS" => 7,
                 "MSPS" => 8,
-                _ => throw new Exception("Invalid AcquisitionTimeUnit")
+                //_ => throw new Exception("Invalid AcquisitionTimeUnit")
+                _ => 0
             };
         }
 
