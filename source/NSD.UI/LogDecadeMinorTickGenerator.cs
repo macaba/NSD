@@ -11,8 +11,8 @@ namespace NSD.UI
 
         public IEnumerable<double> GetMinorTicks(double[] majorPositions, CoordinateRange visibleRange)
         {
-            var minDecadeTick = double.Floor(visibleRange.Min);
-            var maxDecadeTick = double.Ceiling(visibleRange.Max);
+            var minDecadeTick = Math.Floor(visibleRange.Min);
+            var maxDecadeTick = Math.Ceiling(visibleRange.Max);
 
             if(minDecadeTick == maxDecadeTick)
                 return [];
