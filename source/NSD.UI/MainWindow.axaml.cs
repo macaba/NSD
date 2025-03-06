@@ -293,8 +293,7 @@ namespace NSD.UI
                     yArray = spectrum.Values;
                 UpdateNSDChart(spectrum.Frequencies, yArray);
             }
-            WpfPlot1.Plot.Axes.SetLimits(Math.Log10(viewModel.XMin), Math.Log10(viewModel.XMax), Math.Log10(viewModel.YMin), Math.Log10(viewModel.YMax));
-            WpfPlot1.Refresh();
+            SetChartLimitsAndRefresh();
         }
 
         public void UpdateNSDChart(Memory<double> x, Memory<double> y)
@@ -348,7 +347,14 @@ namespace NSD.UI
             WpfPlot1.Plot.Grid.MinorLineWidth = 1;
             WpfPlot1.Plot.Grid.MinorLineColor = ScottPlot.Color.FromARGB(0x14000000);
             WpfPlot1.Plot.Grid.MajorLineColor = ScottPlot.Color.FromARGB(0x50000000);
-            WpfPlot1.Plot.Axes.SetLimits(Math.Log10(viewModel.XMin), Math.Log10(viewModel.XMax), Math.Log10(viewModel.YMin), Math.Log10(viewModel.YMax));
+            SetChartLimitsAndRefresh();
+        }
+
+        private void SetChartLimitsAndRefresh()
+        {
+            var top = Math.Log10(viewModel.YMax + (viewModel.YMax * 0.001));
+            var bottom = Math.Log10(viewModel.YMin - (viewModel.YMin * 0.001));
+            WpfPlot1.Plot.Axes.SetLimits(Math.Log10(viewModel.XMin), Math.Log10(viewModel.XMax), bottom, top);
             WpfPlot1.Refresh();
         }
 
