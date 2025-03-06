@@ -324,14 +324,14 @@ namespace NSD.UI
             NumericAutomatic xTickGenerator = new()
             {
                 LabelFormatter = logTickLabels,
-                MinorTickGenerator = new LogMinorTickGenerator() { Divisions = 10 },
+                MinorTickGenerator = new LogDecadeMinorTickGenerator() { TicksPerDecade = 10 },
                 IntegerTicksOnly = true,
                 TargetTickCount = 10
             };
             NumericAutomatic yTickGenerator = new()
             {
                 LabelFormatter = logTickLabels,
-                MinorTickGenerator = new LogMinorTickGenerator() { Divisions = 10 },
+                MinorTickGenerator = new LogDecadeMinorTickGenerator() { TicksPerDecade = 10 },
                 IntegerTicksOnly = true,
                 TargetTickCount = 10
             };
@@ -352,9 +352,12 @@ namespace NSD.UI
 
         private void SetChartLimitsAndRefresh()
         {
-            var top = Math.Log10(viewModel.YMax + (viewModel.YMax * 0.001));
-            var bottom = Math.Log10(viewModel.YMin - (viewModel.YMin * 0.001));
-            WpfPlot1.Plot.Axes.SetLimits(Math.Log10(viewModel.XMin), Math.Log10(viewModel.XMax), bottom, top);
+            double fudgeFactor = 0.001;
+            var left = Math.Log10(viewModel.XMin - (viewModel.XMin * fudgeFactor));
+            var right = Math.Log10(viewModel.XMax + (viewModel.XMax * fudgeFactor));
+            var top = Math.Log10(viewModel.YMax + (viewModel.YMax * fudgeFactor));
+            var bottom = Math.Log10(viewModel.YMin - (viewModel.YMin * fudgeFactor));
+            WpfPlot1.Plot.Axes.SetLimits(left, right, bottom, top);
             WpfPlot1.Refresh();
         }
 
