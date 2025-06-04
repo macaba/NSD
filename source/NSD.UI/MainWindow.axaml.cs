@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -37,14 +38,21 @@ namespace NSD.UI
                 return;
             }
 
-            var files = Directory.EnumerateFiles(viewModel.ProcessWorkingFolder, "*.csv");
             viewModel.InputFilePaths.Clear();
             viewModel.InputFileNames.Clear();
+            var files = Directory.EnumerateFiles(viewModel.ProcessWorkingFolder, "*.csv");
             foreach (var file in files)
             {
                 viewModel.InputFilePaths.Add(file);
                 viewModel.InputFileNames.Add(Path.GetFileName(file));
             }
+            files = Directory.EnumerateFiles(viewModel.ProcessWorkingFolder, "*.bin");      // Hidden functionality that supports F32 bin files
+            foreach (var file in files)
+            {
+                viewModel.InputFilePaths.Add(file);
+                viewModel.InputFileNames.Add(Path.GetFileName(file));
+            }
+
             viewModel.SelectedInputFileIndex = 0;
         }
 
@@ -117,27 +125,67 @@ namespace NSD.UI
                 viewModel.Status = "Status: Loading CSV...";
 
                 using var stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-                //using var reader = new StreamReader(stream);
-                //using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
-                //var records = await csv.GetRecordsAsync<double>().ToListAsync();
-                List<double> records = new();
+                List<double> records = [];
                 DateTimeOffset fileParseStart = DateTimeOffset.UtcNow;
-                await Task.Run(() =>
-                {
-                    using var streamReader = new StreamReader(stream);
-                    var csvReader = new NReco.Csv.CsvReader(streamReader, ",");
-                    if (viewModel.CsvHasHeader)
-                        csvReader.Read();
-                    int columnIndex = viewModel.CsvColumnIndex;
-                    while (csvReader.Read())
-                    {
-                        var number = double.Parse(csvReader[columnIndex]);
-                        if (number > 1e12)      // Catches the overrange samples from DMM6500
-                            continue;
-                        records.Add(number);
-                    }
-                });
                 DateTimeOffset fileParseFinish = DateTimeOffset.UtcNow;
+
+                switch (Path.GetExtension(path))
+                {
+                    case ".csv":
+                        {
+                            //using var reader = new StreamReader(stream);
+                            //using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+                            //var records = await csv.GetRecordsAsync<double>().ToListAsync();
+
+                            fileParseStart = DateTimeOffset.UtcNow;
+                            await Task.Run(() =>
+                            {
+                                using var streamReader = new StreamReader(stream);
+                                var csvReader = new NReco.Csv.CsvReader(streamReader, ",");
+                                if (viewModel.CsvHasHeader)
+                                    csvReader.Read();
+                                int columnIndex = viewModel.CsvColumnIndex;
+                                while (csvReader.Read())
+                                {
+                                    var number = double.Parse(csvReader[columnIndex]);
+                                    if (number > 1e12)      // Catches the overrange samples from DMM6500
+                                        continue;
+                                    records.Add(number);
+                                }
+                            });
+                            fileParseFinish = DateTimeOffset.UtcNow;
+                            break;
+                        }
+                    case ".bin":
+                        {
+                            fileParseStart = DateTimeOffset.UtcNow;
+                            await Task.Run(() =>
+                            {
+                                const int ChunkSizeBytes = 8 * 1024 * 1024; // 8 MiB
+                                byte[] buffer = new byte[ChunkSizeBytes];
+                                int bytesRead;
+
+                                while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
+                                {
+                                    // Only process full float32 values (4 bytes each)
+                                    int validBytes = bytesRead - (bytesRead % 4);
+                                    if (validBytes == 0)
+                                        continue;
+
+                                    ReadOnlySpan<byte> byteSpan = buffer.AsSpan(0, validBytes);
+                                    ReadOnlySpan<float> floatSpan = MemoryMarshal.Cast<byte, float>(byteSpan);
+
+                                    foreach (var f32 in floatSpan)
+                                    {
+                                        records.Add(f32);
+                                    }
+                                }
+                            });
+                            fileParseFinish = DateTimeOffset.UtcNow;
+                            break;
+                        }
+                }
+
                 if (records.Count == 0)
                 {
                     viewModel.Status = "Error: No CSV records found";
