@@ -37,13 +37,13 @@
     // not to use the first few frequency bins.The first frequency bin that yields unbiased spectral estimates
     // depends on the window function used.The bin is given by the effective half-width of the window
     // transfer function. 
-    int trimmedStartEndBins = 0;
-    public void TrimStartEnd(int bins)
+    int trimmedStartBins = 0;
+    public void TrimStart(int bins)
     {
-        if (trimmedStartEndBins != 0)
-            throw new Exception($"TrimStartEnd already called with bins: {trimmedStartEndBins}");
-        trimmedStartEndBins = bins;
-        Frequencies = Frequencies.Slice(bins, Frequencies.Length - (bins * 2));
-        Values = Values.Slice(bins, Values.Length - (bins * 2));
+        if (trimmedStartBins != 0)
+            throw new Exception($"TrimStart already called with bins: {trimmedStartBins}");
+        trimmedStartBins = bins;
+        Frequencies = Frequencies.Slice(bins, Frequencies.Length - bins);
+        Values = Values.Slice(bins, Values.Length - bins);
     }
 }
