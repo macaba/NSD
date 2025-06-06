@@ -8,6 +8,7 @@ namespace NSD
         {
             //var window = Windows.HFT90D(outputWidth, out double optimumOverlap, out double NENBW);
             var window = Windows.FTNI(outputWidth, out double optimumOverlap, out double NENBW);
+            //var window = Windows.HFT95(outputWidth, out double optimumOverlap, out double NENBW);
             // Switched from HFT90D to FTNI
             // FTNI has the useful feature where Math.Ceiling(NENBW) is 1 less than most flaptop windows,
             // therefore showing one more usable frequency point at the low frequency end of the spectrum.
@@ -33,7 +34,7 @@ namespace NSD
             ConvertWorkSpectrumToAverageVSDInPlace(workSpectrum, spectrumCount);
             var nsd = Spectrum.FromValues(workSpectrum, sampleRate, spectrumCount);
             //nsd.TrimDC();     // Don't need to trim DC if trimming start/end
-            nsd.TrimStartEnd((int)Math.Ceiling(NENBW));
+            nsd.TrimStart((int)Math.Ceiling(NENBW * 2));
             return nsd;
         }
 

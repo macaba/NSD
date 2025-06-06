@@ -120,6 +120,7 @@
 									<ComboBoxItem>131072</ComboBoxItem>
 									<ComboBoxItem>262144</ComboBoxItem>
 									<ComboBoxItem>524288</ComboBoxItem>
+									<ComboBoxItem>1048576</ComboBoxItem>
 								</ComboBox>
 							</StackPanel>
 							<StackPanel x:Name="spLinearStacking" Orientation="Horizontal" Margin="6,0,0,0" IsVisible="{Binding AlgorithmLinStack}">
@@ -139,6 +140,7 @@
 									<ComboBoxItem>131072</ComboBoxItem>
 									<ComboBoxItem>262144</ComboBoxItem>
 									<ComboBoxItem>524288</ComboBoxItem>
+									<ComboBoxItem>1048576</ComboBoxItem>
 								</ComboBox>
 								<Label VerticalAlignment="Stretch" VerticalContentAlignment="Center">Minimum FFT length</Label>
 								<ComboBox SelectedIndex="2" SelectedItem="{Binding SelectedLinearStackingMinLengthItem, Mode=OneWayToSource}" IsEnabled="{Binding Enabled}" HorizontalAlignment="Stretch">
@@ -155,6 +157,7 @@
 									<ComboBoxItem>65536</ComboBoxItem>
 									<ComboBoxItem>131072</ComboBoxItem>
 									<ComboBoxItem>262144</ComboBoxItem>
+									<ComboBoxItem>524288</ComboBoxItem>
 								</ComboBox>
 							</StackPanel>
 						</StackPanel>

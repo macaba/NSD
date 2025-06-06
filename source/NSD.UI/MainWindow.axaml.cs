@@ -46,7 +46,7 @@ namespace NSD.UI
                 viewModel.InputFilePaths.Add(file);
                 viewModel.InputFileNames.Add(Path.GetFileName(file));
             }
-            files = Directory.EnumerateFiles(viewModel.ProcessWorkingFolder, "*.bin");      // Hidden functionality that supports F32 bin files
+            files = Directory.EnumerateFiles(viewModel.ProcessWorkingFolder, "*.f32");      // Hidden functionality that supports F32 bin files
             foreach (var file in files)
             {
                 viewModel.InputFilePaths.Add(file);
@@ -156,7 +156,7 @@ namespace NSD.UI
                             fileParseFinish = DateTimeOffset.UtcNow;
                             break;
                         }
-                    case ".bin":
+                    case ".f32":
                         {
                             fileParseStart = DateTimeOffset.UtcNow;
                             await Task.Run(() =>
