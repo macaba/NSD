@@ -103,6 +103,7 @@ namespace NSD.UI
                         break;
                     case "Linear":
                         break;
+                    case "Linear dual":
                     case "Linear stacking":
                         {
                             var fftWidth = int.Parse((string)viewModel.SelectedLinearStackingLengthItem.Content);
@@ -206,6 +207,7 @@ namespace NSD.UI
                             }
                             break;
                         }
+                    case "Linear dual":
                     case "Linear stacking":
                         {
                             var fftWidth = int.Parse((string)viewModel.SelectedLinearStackingLengthItem.Content);
@@ -245,8 +247,8 @@ namespace NSD.UI
                             var nsd = await Task.Factory.StartNew(() => NSD.Log(
                                 input: records.ToArray(),
                                 sampleRateHz: 1.0 / acquisitionTimeSeconds,
-                                freqMin: viewModel.XMin,
-                                freqMax: viewModel.XMax,
+                                freqMin: ParseWithSIPrefix(viewModel.XMin),
+                                freqMax: ParseWithSIPrefix(viewModel.XMax),
                                 pointsPerDecade,
                                 minAverages,
                                 minLength,
@@ -258,6 +260,14 @@ namespace NSD.UI
                         {
                             var fftWidth = int.Parse((string)viewModel.SelectedLinearLengthItem.Content);
                             var nsd = await Task.Factory.StartNew(() => NSD.Linear(input: records.ToArray(), 1.0 / acquisitionTimeSeconds, outputWidth: fftWidth));
+                            spectrum = nsd;
+                            break;
+                        }
+                    case "Linear dual":
+                        {
+                            var fftMaxWidth = int.Parse((string)viewModel.SelectedLinearStackingLengthItem.Content);
+                            var fftMinWidth = int.Parse((string)viewModel.SelectedLinearStackingMinLengthItem.Content);
+                            var nsd = await Task.Factory.StartNew(() => NSD.DualLinear(input: records.ToArray(), 1.0 / acquisitionTimeSeconds, maxWidth: fftMaxWidth, minWidth: fftMinWidth));
                             spectrum = nsd;
                             break;
                         }
@@ -348,7 +358,7 @@ namespace NSD.UI
         {
             WpfPlot1.Plot.Clear();
             double[] logXs = x.ToArray().Select(pt => Math.Log10(pt)).ToArray();
-            double[] logYs = y.ToArray().Select(pt => Math.Log10(pt * 1E9)).ToArray();
+            double[] logYs = y.ToArray().Select(pt => Math.Log10(pt)).ToArray();
             var scatter = WpfPlot1.Plot.Add.ScatterLine(logXs, logYs);
             //var scatter = WpfPlot1.Plot.Add.Scatter(logXs, logYs);
             if (viewModel.MarkersChecked)
@@ -366,9 +376,80 @@ namespace NSD.UI
             CommonChartConfig();
         }
 
+        private double ParseWithSIPrefix(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                throw new ArgumentException("Input cannot be null or empty.");
+
+            input = input.Trim();
+
+            var siMultipliers = new Dictionary<string, double>(StringComparer.Ordinal)
+            {
+                ["p"] = 1e-12,
+                ["n"] = 1e-9,
+                ["u"] = 1e-6,
+                ["m"] = 1e-3,
+                [""] = 1,
+                ["k"] = 1e3,
+                ["M"] = 1e6,
+                ["G"] = 1e9,
+                ["T"] = 1e12
+            };
+
+            // Separate number part and suffix
+            int i = input.Length - 1;
+
+            // Scan backward to find the first character that's not part of the suffix
+            while (i >= 0 && (char.IsLetter(input[i]) || input[i] == 'µ')) i--;
+
+            string numberPart = input.Substring(0, i + 1);
+            string suffix = input.Substring(i + 1);
+
+            // Handle alternate micro symbol
+            if (suffix == "µ") suffix = "u";
+
+            if (!double.TryParse(numberPart, out double number))
+                throw new FormatException($"Invalid number format in '{input}'.");
+
+            if (!siMultipliers.TryGetValue(suffix, out double multiplier))
+                throw new FormatException($"Unknown SI suffix '{suffix}' in '{input}'.");
+
+            return number * multiplier;
+        }
+
+        private string logTickLabels(double y)
+        {
+            double value = Math.Pow(10, y);
+
+            // Define SI prefixes
+            var siPrefixes = new (double threshold, string suffix)[]
+            {
+        (1e12, "T"),
+        (1e9,  "G"),
+        (1e6,  "M"),
+        (1e3,  "k"),
+        (1,    ""),
+        (1e-3, "m"),
+        (1e-6, "μ"),
+        (1e-9, "n"),
+        (1e-12,"p"),
+        (1e-15,"f"),
+            };
+
+            foreach (var (threshold, suffix) in siPrefixes)
+            {
+                if (value >= threshold)
+                {
+                    return (value / threshold).ToString("G4") + suffix;
+                }
+            }
+
+            return value.ToString("G4");  // fallback for very small values
+        }
+
         private void CommonChartConfig()
         {
-            static string logTickLabels(double y) => Math.Pow(10, y).ToString();    // "N0"
+            //static string logTickLabels(double y) => Math.Pow(10, y).ToString();    // "N0"
             NumericAutomatic xTickGenerator = new()
             {
                 LabelFormatter = logTickLabels,
@@ -387,7 +468,7 @@ namespace NSD.UI
             WpfPlot1.Plot.Axes.Left.TickGenerator = yTickGenerator;
             WpfPlot1.Plot.Axes.Hairline(true);
             WpfPlot1.Plot.XLabel("Frequency (Hz)", 14);
-            WpfPlot1.Plot.YLabel("Noise (nV/rHz)", 14);
+            WpfPlot1.Plot.YLabel("Noise (V/rHz)", 14);
             WpfPlot1.Plot.Axes.Bottom.Label.Bold = false;
             WpfPlot1.Plot.Axes.Left.Label.Bold = false;
             WpfPlot1.Plot.Title("NSD estimation", size: 14);
@@ -401,10 +482,14 @@ namespace NSD.UI
         private void SetChartLimitsAndRefresh()
         {
             double fudgeFactor = 0.001;
-            var left = Math.Log10(viewModel.XMin - (viewModel.XMin * fudgeFactor));
-            var right = Math.Log10(viewModel.XMax + (viewModel.XMax * fudgeFactor));
-            var top = Math.Log10(viewModel.YMax + (viewModel.YMax * fudgeFactor));
-            var bottom = Math.Log10(viewModel.YMin - (viewModel.YMin * fudgeFactor));
+            double xMin = ParseWithSIPrefix(viewModel.XMin);
+            double xMax = ParseWithSIPrefix(viewModel.XMax);
+            double yMin = ParseWithSIPrefix(viewModel.YMin);
+            double yMax = ParseWithSIPrefix(viewModel.YMax);
+            var left = Math.Log10(xMin - (xMin * fudgeFactor));
+            var right = Math.Log10(xMax + (xMax * fudgeFactor));
+            var bottom = Math.Log10(yMin - (yMin * fudgeFactor));
+            var top = Math.Log10(yMax + (yMax * fudgeFactor));
             WpfPlot1.Plot.Axes.SetLimits(left, right, bottom, top);
             WpfPlot1.Refresh();
         }

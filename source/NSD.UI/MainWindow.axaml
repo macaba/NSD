@@ -76,9 +76,10 @@
 						<Label Grid.Row="5" Grid.Column="0" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Margin="0,3,0,3">NSD mode</Label>
 						<StackPanel Orientation="Horizontal" Grid.Row="5" Grid.Column="1"  Margin="0,3,0,3">
 							<ComboBox SelectedIndex="0" SelectedItem="{Binding SelectedNsdAlgorithm, Mode=OneWayToSource}" IsEnabled="{Binding Enabled}" HorizontalAlignment="Stretch" VerticalAlignment="Center" MinWidth="120">
-								<ComboBoxItem>Logarithmic</ComboBoxItem>
 								<ComboBoxItem>Linear</ComboBoxItem>
+								<ComboBoxItem>Linear dual</ComboBoxItem>
 								<ComboBoxItem>Linear stacking</ComboBoxItem>
+								<ComboBoxItem>Logarithmic</ComboBoxItem>
 							</ComboBox>
 
 							<StackPanel x:Name="spLogarithmic" Orientation="Horizontal" Margin="6,0,0,0" IsVisible="{Binding AlgorithmLog}">
@@ -167,13 +168,13 @@
 						<Button Grid.Row="6" Grid.ColumnSpan="3" Margin="0,6,0,6" Content="Run" HorizontalAlignment="Stretch" Click="btnRun_Click" IsEnabled="{Binding Enabled}"/>
 						<StackPanel Grid.Row="7" Grid.ColumnSpan="2" Orientation="Horizontal">
 							<Label VerticalAlignment="Center">X Min</Label>
-							<NumericUpDown Value="{Binding XMin}" AllowSpin="false" ShowButtonSpinner="false" Width="100" IsEnabled="{Binding Enabled}" Padding="0"></NumericUpDown>
+							<TextBox Text="{Binding XMin}" Width="100" IsEnabled="{Binding Enabled}" Margin="0,3,0,3"></TextBox>
 							<Label VerticalAlignment="Center">X Max</Label>
-							<NumericUpDown Value="{Binding XMax}" AllowSpin="false" ShowButtonSpinner="false" Width="100" IsEnabled="{Binding Enabled}" Padding="0"></NumericUpDown>
+							<TextBox Text="{Binding XMax}" Width="100" IsEnabled="{Binding Enabled}" Margin="0,3,0,3"></TextBox>
 							<Label VerticalAlignment="Center">Y Min</Label>
-							<NumericUpDown Value="{Binding YMin}" AllowSpin="false" ShowButtonSpinner="false" Width="100" IsEnabled="{Binding Enabled}" Padding="0"></NumericUpDown>
+							<TextBox Text="{Binding YMin}" Width="100" IsEnabled="{Binding Enabled}" Margin="0,3,0,3"></TextBox>
 							<Label VerticalAlignment="Center">Y Max</Label>
-							<NumericUpDown Value="{Binding YMax}" AllowSpin="false" ShowButtonSpinner="false" Width="100" IsEnabled="{Binding Enabled}" Padding="0"></NumericUpDown>
+							<TextBox Text="{Binding YMax}" Width="100" IsEnabled="{Binding Enabled}" Margin="0,3,0,3"></TextBox>
 							<CheckBox Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Margin="6,0,0,0" Content="Savitzky-Golay filter" IsChecked="{Binding SgFilterChecked}" IsEnabled="{Binding Enabled}"></CheckBox>
 							<CheckBox Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Margin="6,0,0,0" Content="Markers" IsChecked="{Binding MarkersChecked}" IsEnabled="{Binding Enabled}"></CheckBox>
 						</StackPanel>

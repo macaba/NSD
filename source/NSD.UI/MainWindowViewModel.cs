@@ -24,10 +24,10 @@ namespace NSD.UI
         [ObservableProperty] bool markersChecked = false;
         [ObservableProperty] IBrush statusBackground = Brushes.WhiteSmoke;
         [ObservableProperty] string inputScaling = "1.0";
-        [ObservableProperty] string logNsdPointsDecade = "5";
+        [ObservableProperty] string logNsdPointsDecade = "10";
         [ObservableProperty] string logNsdPointsDecadeScaling = "2.0";
         [ObservableProperty] string logNsdMinAverages = "1";
-        [ObservableProperty] string logNsdMinLength = "128";
+        [ObservableProperty] string logNsdMinLength = "1024";
 
         public ComboBoxItem? SelectedAcquisitionTimebaseItem { get; set; }
 
@@ -49,6 +49,7 @@ namespace NSD.UI
                         AlgorithmLin = true;
                         AlgorithmLinStack = false;
                         break;
+                    case "Linear dual":
                     case "Linear stacking":
                         AlgorithmLog = false;
                         AlgorithmLin = false;
@@ -66,10 +67,10 @@ namespace NSD.UI
         [ObservableProperty] bool algorithmLinStack = false;    // Controls visibility of sub-stack panel
 
         public ComboBoxItem? SelectedFileFormatItem { get; set; }
-        public double XMin { get; set; } = 0.001;
-        public double XMax { get; set; } = 100;
-        public double YMin { get; set; } = 0.1;
-        public double YMax { get; set; } = 100;
+        public string XMin { get; set; } = "0.1";
+        public string XMax { get; set; } = "1k";
+        public string YMin { get; set; } = "1n";
+        public string YMax { get; set; } = "1m";
         public string WindowTitle { get { Version version = Assembly.GetExecutingAssembly().GetName().Version; return "NSD v" + version.Major + "." + version.Minor; } }
         [ObservableProperty] bool csvHasHeader = false;
         [ObservableProperty] int csvColumnIndex = 0;

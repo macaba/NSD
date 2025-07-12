@@ -12,6 +12,7 @@ namespace NSD
             // Switched from HFT90D to FTNI
             // FTNI has the useful feature where Math.Ceiling(NENBW) is 1 less than most flaptop windows,
             // therefore showing one more usable frequency point at the low frequency end of the spectrum.
+            var windowS1 = S1(window.Span);
             var windowS2 = S2(window.Span);
             var fft = new FFT(outputWidth);
             int startIndex = 0;
@@ -19,23 +20,62 @@ namespace NSD
             int overlap = (int)(outputWidth * (1.0 - optimumOverlap));
             int spectrumCount = 0;
             Memory<double> workBuffer = new double[outputWidth];
-            Memory<double> workSpectrum = new double[outputWidth];
+            Memory<double> sumSpectrum = new double[outputWidth];
             Memory<double> lineFitOutput = new double[outputWidth];
-            Memory<double> psdMemory = new double[outputWidth];
+            Memory<double> powerSpectrum = new double[outputWidth];
             while (endIndex < input.Length)
             {
                 var lineFitInput = input.Slice(startIndex, outputWidth);
                 SubtractLineFit(lineFitInput, lineFitOutput, workBuffer);
-                fft.PSD(lineFitOutput, psdMemory, window, sampleRate, windowS2);
-                AddPSDToWorkSpectrum(psdMemory, workSpectrum); spectrumCount++;
+                fft.PSD(lineFitOutput, powerSpectrum, window, sampleRate, windowS2);
+                //fft.PS(lineFitOutput, powerSpectrum, window, windowS1);
+                AddPowerSpectrumToSumSpectrum(powerSpectrum, sumSpectrum); spectrumCount++;
                 startIndex += overlap;
                 endIndex += overlap;
             }
-            ConvertWorkSpectrumToAverageVSDInPlace(workSpectrum, spectrumCount);
-            var nsd = Spectrum.FromValues(workSpectrum, sampleRate, spectrumCount);
+            ConvertSumPowerSpectrumToAverageLinearInPlace(sumSpectrum, spectrumCount);
+            var nsd = Spectrum.FromValues(sumSpectrum, sampleRate, spectrumCount);
             //nsd.TrimDC();     // Don't need to trim DC if trimming start/end
             nsd.TrimStart((int)Math.Ceiling(NENBW * 2));
             return nsd;
+        }
+
+        public static Spectrum DualLinear(Memory<double> input, double sampleRate, int maxWidth = 2048, int minWidth = 64)
+        {
+            // Compute all the possible widths between maxWidth & minWidth
+            List<int> widths = [minWidth, maxWidth];
+
+            // Run parallel NSDs
+            var spectrums = new Dictionary<int, Spectrum>();
+            Parallel.ForEach(widths, new ParallelOptions { MaxDegreeOfParallelism = 8 }, width =>
+            {
+                spectrums[width] = Linear(input, sampleRate, width);
+            });
+
+            // Combine all the NSDs into one
+            double lowestFrequency = double.MaxValue;
+            var outputFrequencies = new List<double>();
+            var outputValues = new List<double>();
+            int averages = 0;
+            foreach (var computedWidth in widths)
+            {
+                var nsd = spectrums[computedWidth];
+                averages += nsd.Averages;
+                for (int i = nsd.Frequencies.Length - 1; i >= 0; i--)
+                {
+                    if (nsd.Frequencies.Span[i] < lowestFrequency)
+                    {
+                        lowestFrequency = nsd.Frequencies.Span[i];
+                        outputFrequencies.Add(nsd.Frequencies.Span[i]);
+                        outputValues.Add(nsd.Values.Span[i]);
+                    }
+                }
+            }
+
+            // Order by frequencies smallest to largest
+            outputFrequencies.Reverse();
+            outputValues.Reverse();
+            return new Spectrum() { Frequencies = outputFrequencies.ToArray(), Values = outputValues.ToArray(), Averages = averages, Stacking = widths.Count };
         }
 
         public static Spectrum StackedLinear(Memory<double> input, double sampleRate, int maxWidth = 2048, int minWidth = 64)
@@ -197,15 +237,15 @@ namespace NSD
             return output;
         }
 
-        private static void AddPSDToWorkSpectrum(Memory<double> inputPSD, Memory<double> workingMemory)
+        private static void AddPowerSpectrumToSumSpectrum(Memory<double> input, Memory<double> workingMemory)
         {
-            for (int i = 0; i < inputPSD.Length; i++)
+            for (int i = 0; i < input.Length; i++)
             {
-                workingMemory.Span[i] += inputPSD.Span[i];
+                workingMemory.Span[i] += input.Span[i];
             }
         }
 
-        private static void ConvertWorkSpectrumToAverageVSDInPlace(Memory<double> workingMemory, int count)
+        private static void ConvertSumPowerSpectrumToAverageLinearInPlace(Memory<double> workingMemory, int count)
         {
             double divisor = count;
             for (int i = 0; i < workingMemory.Length; i++)
@@ -213,7 +253,7 @@ namespace NSD
                 workingMemory.Span[i] = workingMemory.Span[i] / divisor;
             }
 
-            // Convert to VSD
+            // Convert to LSD
             for (int i = 0; i < workingMemory.Length; i++)
             {
                 workingMemory.Span[i] = Math.Sqrt(workingMemory.Span[i]);
