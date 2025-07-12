@@ -468,7 +468,7 @@ namespace NSD.UI
             WpfPlot1.Plot.Axes.Left.TickGenerator = yTickGenerator;
             WpfPlot1.Plot.Axes.Hairline(true);
             WpfPlot1.Plot.XLabel("Frequency (Hz)", 14);
-            WpfPlot1.Plot.YLabel("Noise (V/rHz)", 14);
+            WpfPlot1.Plot.YLabel("Noise (V/√Hz)", 14);
             WpfPlot1.Plot.Axes.Bottom.Label.Bold = false;
             WpfPlot1.Plot.Axes.Left.Label.Bold = false;
             WpfPlot1.Plot.Title("NSD estimation", size: 14);
