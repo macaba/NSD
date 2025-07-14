@@ -16,6 +16,11 @@
 
 	<ItemGroup>
 		<None Remove=".gitignore" />
+		<None Remove="icon.ico" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <AvaloniaResource Include="icon.ico" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Avalonia.Desktop" Version="11.1.3" />

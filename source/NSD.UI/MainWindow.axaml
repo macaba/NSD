@@ -9,6 +9,7 @@
 		xmlns:ScottPlot="clr-namespace:ScottPlot.Avalonia;assembly=ScottPlot.Avalonia"
 		xmlns:vm="using:NSD.UI"
 		x:DataType="vm:MainWindowViewModel"
+		Icon="avares://NSD.UI/icon.ico"
         Title="{Binding WindowTitle}">
 	<Grid>
 		<Grid.RowDefinitions>
