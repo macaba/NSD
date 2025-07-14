@@ -9,7 +9,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace NSD.UI
@@ -481,7 +480,7 @@ namespace NSD.UI
 
         private void SetChartLimitsAndRefresh()
         {
-            double fudgeFactor = 0.001;
+            double fudgeFactor = 0.0001;
             double xMin = ParseWithSIPrefix(viewModel.XMin);
             double xMax = ParseWithSIPrefix(viewModel.XMax);
             double yMin = ParseWithSIPrefix(viewModel.YMin);
